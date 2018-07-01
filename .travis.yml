@@ -1,0 +1,24 @@
+sudo: required
+language: node_js
+node_js:
+  - 10
+services:
+  - docker
+before_install:
+  - sudo ./scripts/install.sh
+  - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+  - npm i -g npm@latest
+  - npm ci
+
+install:
+  - lerna bootstrap --ci
+
+script:
+  - lerna run test
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: ./scripts/deploy.sh
+  on:
+    branch: master
