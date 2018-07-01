@@ -16,7 +16,8 @@
     "semantic-ui-react": "^0.81.3"
   },
   "scripts": {
-    "deploy": "npm run build && npm run build:docker && npm run publish:docker",
+    "deploy:helm": "helm upgrade --wait --timeout 300 -i --set image.tag=${VERSION:-latest} ureka-web ./helm/web",
+    "deploy": "npm run build && npm run build:docker && npm run publish:docker && npm run deploy:helm",
     "build:docker": "docker build -t budde377/ureka-web:${VERSION:-latest} .",
     "publish:docker": "docker push budde377/ureka-web:${VERSION:-latest}",
     "build": "gatsby build",
