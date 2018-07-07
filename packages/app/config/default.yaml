@@ -1,0 +1,12 @@
+
+port: 1337
+version: latest
+
+
+api:
+  server:
+    http: http://localhost:1337
+  client:
+    http: http://localhost:1337
+    ws: ws://localhost:1337
+

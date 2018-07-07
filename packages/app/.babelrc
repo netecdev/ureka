@@ -1,0 +1,31 @@
+{
+  "plugins": [
+    [
+      "babel-plugin-inline-import",
+      {
+        "extensions": [
+          ".graphqls"
+        ]
+      }
+    ]
+  ],
+  "presets": [
+    "@babel/preset-flow",
+    "@babel/preset-react",
+    [
+      "@babel/preset-stage-0",
+      {
+        "decoratorsLegacy": true,
+        "pipelineProposal": "minimal"
+      }
+    ],
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "10"
+        }
+      }
+    ]
+  ]
+}
