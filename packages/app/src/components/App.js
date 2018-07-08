@@ -174,8 +174,16 @@ export default () => (
         <Switch>
           <Route path={'/projects/:project/apps/:app'} component={Screenshot} />
           <Route path={'/projects/:project/reports/:report'} component={Report} />
-          <Route path={'/projects/:project'} component={Project} />
-          <Route path={'/projects'} component={Projects} />
+          <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
+            <Project>
+              {[project, data.projects[project]]}
+            </Project>
+          )} />
+          <Route path={'/projects'} render={() => (
+            <Projects>
+              {data.projects}
+            </Projects>
+          )} />
           <Redirect from={'/'} to={'/projects'} exact />
         </Switch>
       </ContentView>
