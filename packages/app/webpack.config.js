@@ -45,6 +45,7 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           plugins: [
+            '@babel/plugin-proposal-class-properties',
             'react-hot-loader/babel'
           ],
           presets: [
@@ -75,6 +76,10 @@ module.exports = {
       {
         test: /\.(svg|woff|woff2|png|eot|ttf)$/,
         loader: 'file-loader'
+      },
+      {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader']
       }
     ]
   }

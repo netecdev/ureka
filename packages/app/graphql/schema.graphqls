@@ -1,7 +1,35 @@
+type File {
+    url: String!
+    name: String!
+}
+
+type Screenshot implements File {
+    url: String!
+    name: String!
+    width: Int!
+    height: Int!
+}
+
+type Report implements File {
+    url: String!
+    name: String!
+}
+
+type Project {
+    name: String!
+    screenshots: [Screenshot!]!
+    reports: [Report!]!
+}
+
 type Query {
-    foo: Boolean
+    project(id: ID): Project
+}
+
+type Mutation {
+    createProject(name: String!): Project!
 }
 
 schema {
     query: Query
+    mutation: Mutation
 }

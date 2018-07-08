@@ -23,6 +23,10 @@ export default ({apolloState, helmet, styles, content, config, version}: { apoll
       dangerouslySetInnerHTML={{__html: `window.__APOLLO_STATE__= ${JSON.stringify(apolloState).replace(/</g, '\\u003c')}`}} />
     {styles}
     <script src={`/main.js?v=${version}`} async defer />
+    <link href={'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css'} rel={'stylesheet'}
+          type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Unica+One" rel="stylesheet" />
   </head>
   <body {...helmet.bodyAttributes.toComponent()}>
   <div id={'content'} dangerouslySetInnerHTML={{__html: content}} />
