@@ -14,6 +14,7 @@ function convertColor (color) {
 export const Title = styled.div``
 
 export const Action = styled.div`
+  user-select: none;
   cursor: pointer;
   ${Icon} {
     fill: #585858;

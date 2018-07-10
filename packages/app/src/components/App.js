@@ -61,132 +61,157 @@ const data = {
     }
   }
 }
+export default class App extends React.Component<{}, {}> {
+  state = {}
 
-export default () => (
-  <Container>
-    <Switch>
-      <Route path='/projects/:project' render={({match: {params: {project}}}) => (
-        <LeftNav>
-          {[{
-            header: 'Applications',
-            menu:
-              Object
-                .keys(data.projects[project].apps)
-                .map(id => ({
-                  title: data.projects[project].apps[id].title,
-                  to: `/projects/${project}/apps/${id}`,
-                  icon: data.projects[project].apps[id].type
-                }))
-          },
-            {
-              header: 'Reports',
-              menu:
-                Object
-                  .keys(data.projects[project].reports)
-                  .map(id => ({
-                    title: data.projects[project].reports[id].title,
-                    to: `/projects/${project}/reports/${id}`,
-                    icon: 'document'
-                  }))
-            }
-          ]}
-        </LeftNav>
-      )} />
-      <Route path={'/projects'} render={() => (
-        <LeftNav>
-          {[{
-            header: 'Projects',
-            menu:
-              Object
-                .keys(data.projects)
-                .map(id => ({
-                  title: data.projects[id].title,
-                  to: `/projects/${id}`,
-                  icon: 'project'
-                }))
-          }]}
-        </LeftNav>
-      )} />
-      <Route render={() => (
-        <LeftNav>
-          {[]}
-        </LeftNav>
-      )} />
-    </Switch>
-    <Content>
-      <Switch>
-        <Route path={'/projects/:project/apps/:app'} render={({match: {params: {project, app}}}) => (
-          <TopNav>
-            {[
-              {
-                title: data.projects[project].title,
-                type: 'Project',
-                to: `/projects/${project}`
-              },
-              {
-                title: data.projects[project].apps[app].title,
-                type: 'Application',
-                to: `/projects/${project}/apps/${app}`
-              }
-            ]}
-          </TopNav>
-        )} />
-        <Route path={'/projects/:project/reports/:report'} render={({match: {params: {project, report}}}) => (
-          <TopNav>
-            {[
-              {
-                title: data.projects[project].title,
-                type: 'Project',
-                to: `/projects/${project}`
-              },
-              {
-                title: data.projects[project].reports[report].title,
-                type: 'Report',
-                to: `/projects/${project}/reports/${report}`
-              }
-            ]}
-          </TopNav>
-        )} />
-        <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
-          <TopNav>
-            {[
-              {
-                title: data.projects[project].title,
-                type: 'Project',
-                to: `/projects/${project}`
-              }
-            ]}
-          </TopNav>
-        )} />
-        <Route path={'/projects'} render={() => (
-          <TopNav>
-            {[
-              {
-                title: 'Projects',
-                type: '',
-                to: `/projects`
-              }
-            ]}
-          </TopNav>
-        )} />
-      </Switch>
-      <ContentView>
+  onAddProject = () => null
+  onUploadApplication = () => null
+  onUploadReport = () => null
+  onDeleteApplication = (id: string) => null
+  onDeleteReport = (id: string) => null
+  onDeleteProject = (id: string) => null
+  onEditApplication = (id: string) => null
+  onEditReport = (id: string) => null
+  onEditProject = (id: string) => null
+
+  render () {
+    return (
+      <Container>
         <Switch>
-          <Route path={'/projects/:project/apps/:app'} component={Screenshot} />
-          <Route path={'/projects/:project/reports/:report'} component={Report} />
-          <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
-            <Project>
-              {[project, data.projects[project]]}
-            </Project>
+          <Route path='/projects/:project' render={({match: {params: {project}}}) => (
+            <LeftNav>
+              {[{
+                header: 'Applications',
+                menu:
+                  Object
+                    .keys(data.projects[project].apps)
+                    .map(id => ({
+                      title: data.projects[project].apps[id].title,
+                      to: `/projects/${project}/apps/${id}`,
+                      icon: data.projects[project].apps[id].type
+                    }))
+              },
+                {
+                  header: 'Reports',
+                  menu:
+                    Object
+                      .keys(data.projects[project].reports)
+                      .map(id => ({
+                        title: data.projects[project].reports[id].title,
+                        to: `/projects/${project}/reports/${id}`,
+                        icon: 'document'
+                      }))
+                }
+              ]}
+            </LeftNav>
           )} />
           <Route path={'/projects'} render={() => (
-            <Projects>
-              {data.projects}
-            </Projects>
+            <LeftNav>
+              {[{
+                header: 'Projects',
+                menu:
+                  Object
+                    .keys(data.projects)
+                    .map(id => ({
+                      title: data.projects[id].title,
+                      to: `/projects/${id}`,
+                      icon: 'project'
+                    }))
+              }]}
+            </LeftNav>
           )} />
-          <Redirect from={'/'} to={'/projects'} exact />
+          <Route render={() => (
+            <LeftNav>
+              {[]}
+            </LeftNav>
+          )} />
         </Switch>
-      </ContentView>
-    </Content>
-  </Container>
-)
+        <Content>
+          <Switch>
+            <Route path={'/projects/:project/apps/:app'} render={({match: {params: {project, app}}}) => (
+              <TopNav>
+                {[
+                  {
+                    title: data.projects[project].title,
+                    type: 'Project',
+                    to: `/projects/${project}`
+                  },
+                  {
+                    title: data.projects[project].apps[app].title,
+                    type: 'Application',
+                    to: `/projects/${project}/apps/${app}`
+                  }
+                ]}
+              </TopNav>
+            )} />
+            <Route path={'/projects/:project/reports/:report'} render={({match: {params: {project, report}}}) => (
+              <TopNav>
+                {[
+                  {
+                    title: data.projects[project].title,
+                    type: 'Project',
+                    to: `/projects/${project}`
+                  },
+                  {
+                    title: data.projects[project].reports[report].title,
+                    type: 'Report',
+                    to: `/projects/${project}/reports/${report}`
+                  }
+                ]}
+              </TopNav>
+            )} />
+            <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
+              <TopNav>
+                {[
+                  {
+                    title: data.projects[project].title,
+                    type: 'Project',
+                    to: `/projects/${project}`
+                  }
+                ]}
+              </TopNav>
+            )} />
+            <Route path={'/projects'} render={() => (
+              <TopNav>
+                {[
+                  {
+                    title: 'Projects',
+                    type: '',
+                    to: `/projects`
+                  }
+                ]}
+              </TopNav>
+            )} />
+          </Switch>
+          <ContentView>
+            <Switch>
+              <Route path={'/projects/:project/apps/:app'} component={Screenshot} />
+              <Route path={'/projects/:project/reports/:report'} component={Report} />
+              <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
+                <Project
+                  onDeleteApplication={this.onDeleteApplication}
+                  onDeleteReport={this.onDeleteReport}
+                  onUploadApplication={this.onUploadApplication}
+                  onUploadReport={this.onUploadReport}
+                  onEditApplication={this.onEditApplication}
+                  onEditReport={this.onEditReport}
+                  >
+                  {[project, data.projects[project]]}
+                </Project>
+              )} />
+              <Route path={'/projects'} render={() => (
+                <Projects
+                  onEditProject={this.onEditProject}
+                  onAddProject={this.onAddProject}
+                  onDeleteProject={this.onDeleteProject}>
+                  {data.projects}
+                </Projects>
+              )} />
+              <Redirect from={'/'} to={'/projects'} exact />
+            </Switch>
+          </ContentView>
+        </Content>
+      </Container>
+    )
+  }
+}

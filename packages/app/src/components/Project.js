@@ -2,9 +2,10 @@
 
 import * as React from 'react'
 import styled from 'styled-components'
-import { DesktopIcon, DocIcon, MobileIcon, TrashIcon, UploadIcon } from './Icons'
+import { DesktopIcon, DocIcon, EditIcon, MobileIcon, TrashIcon, UploadIcon } from './Icons'
 import { Action, Container, Header, P, Title } from './Content'
 import { Item, ItemLink, List } from './List'
+import { wrapClick } from '../utils'
 
 const Link = styled.div`
   text-align: center;
@@ -28,13 +29,38 @@ export type Project = {|
   reports: { [string]: Report }
 |}
 
-const s: React.ComponentType<{ children: [string, Project] }> = styled((({className, children: [id, project]}) => (
+export type OnUploadApplication = () => any
+
+export type OnUploadReport = OnUploadApplication
+
+export type OnEditApplication = (id: string) => any
+
+export type OnEditReport = OnEditApplication
+
+export type OnDeleteApplication = (id: string) => any
+
+export type OnDeleteReport = OnDeleteApplication
+
+const s: React.ComponentType<{
+  onUploadApplication?: OnUploadApplication,
+  onUploadReport?: OnUploadReport,
+  onDeleteApplication?: OnDeleteApplication,
+  onDeleteReport?: OnDeleteReport,
+  onEditApplication?: OnEditApplication,
+  onEditReport?: OnEditReport,
+  children: [string, Project]
+}> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: [id, project]}) => (
   <Container className={className}>
     <Header>
       Applications
-      <Action>
-        <UploadIcon />
-      </Action>
+      {
+        onUploadApplication
+        && (
+          <Action onClick={wrapClick(onUploadApplication)}>
+            <UploadIcon />
+          </Action>
+        )
+      }
     </Header>
     <List>
       {Object
@@ -55,18 +81,37 @@ const s: React.ComponentType<{ children: [string, Project] }> = styled((({classN
               <Title>
                 {project.apps[i].title}
               </Title>
-              <Action color='red'>
-                <TrashIcon />
-              </Action>
+              {
+                onEditApplication
+                && (
+                  <Action onClick={wrapClick(() => onEditApplication(i))}>
+                    <EditIcon />
+                  </Action>
+                )
+              }
+
+              {
+                onDeleteApplication
+                && (
+                  <Action color='red' onClick={wrapClick(() => onDeleteApplication(i))}>
+                    <TrashIcon />
+                  </Action>
+                )
+              }
             </ItemLink>
           </Item>
         ))}
     </List>
     <Header>
       Reports
-      <Action>
-        <UploadIcon />
-      </Action>
+      {
+        onUploadReport
+        && (
+          <Action onClick={wrapClick(onUploadReport)}>
+            <UploadIcon />
+          </Action>
+        )
+      }
     </Header>
     <List>
       {
@@ -75,13 +120,25 @@ const s: React.ComponentType<{ children: [string, Project] }> = styled((({classN
           .map(i => (
             <Item key={i}>
               <ItemLink to={`/projects/${id}/reports/${i}`}>
-                <DocIcon/>
+                <DocIcon />
                 <Title>
                   {project.reports[i].title}
                 </Title>
-                <Action color='red'>
-                  <TrashIcon />
-                </Action>
+                {onEditReport
+                && (
+                  <Action onClick={wrapClick(() => onEditReport(i))}>
+                    <EditIcon />
+                  </Action>
+                )
+                }
+                {
+                  onDeleteReport
+                  && (
+                    <Action color='red' onClick={wrapClick(() => onDeleteReport(i))}>
+                      <TrashIcon />
+                    </Action>
+                  )
+                }
               </ItemLink>
             </Item>
           ))
