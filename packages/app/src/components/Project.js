@@ -6,6 +6,7 @@ import { DesktopIcon, DocIcon, EditIcon, MobileIcon, TrashIcon, UploadIcon } fro
 import { Action, Container, Header, P, Title } from './Content'
 import { Item, ItemLink, List } from './List'
 import { wrapClick } from '../utils'
+import type { App } from './Screenshot'
 
 const Link = styled.div`
   text-align: center;
@@ -13,11 +14,6 @@ const Link = styled.div`
   background-color: #ffffff;
   padding: 2em 0;
 `
-
-type App = {|
-  title: string,
-  type: 'desktop' | 'mobile'
-|}
 
 type Report = {|
   title: string

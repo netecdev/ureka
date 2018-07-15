@@ -56,8 +56,31 @@ const data = {
     foo: {
       title: 'Foo',
       apps: {
-        '1': {title: 'Front page', type: 'desktop'},
-        '2': {title: 'Main view', type: 'mobile'}
+        '1': {
+          title: 'Front page',
+          type: 'desktop',
+          url: '/screenshot.png',
+          height: 6347,
+          width: 1249,
+          annotations: [
+            {
+              type: 'design',
+              x: 400,
+              y: 40,
+              width: 100,
+              height: 240,
+              description: 'Loltime 3'
+            }
+          ]
+        },
+        '2': {
+          url: '/screenshot.png',
+          height: 6347,
+          width: 1249,
+          title: 'Main view',
+          type: 'mobile',
+          annotations: []
+        }
       },
       reports: {
         '1': {title: 'Report 1'}
@@ -208,7 +231,7 @@ const UploadApp = ({project}) => (
     <Form>
       <Label>
         Name
-        <TextField placeholder={'Fancy application'}/>
+        <TextField placeholder={'Fancy application'} />
       </Label>
       <FileUpload />
       <Submit value={'Upload'} />
@@ -227,7 +250,7 @@ const UploadReport = ({project}) => (
     <Form>
       <Label>
         Name
-        <TextField placeholder={'Fancy report'}/>
+        <TextField placeholder={'Fancy report'} />
       </Label>
       <FileUpload />
       <Submit value={'Upload'} />
@@ -420,7 +443,9 @@ export default class App extends React.Component<{}, {| modal: ?ModalT |}> {
             </Switch>
             <ContentView>
               <Switch>
-                <Route path={'/projects/:project/apps/:app'} component={Screenshot} />
+                <Route path={'/projects/:project/apps/:app'} render={({match: {params: {project, app}}}) => (
+                  <Screenshot app={data.projects[project].apps[app]} />
+                )} />
                 <Route path={'/projects/:project/reports/:report'} component={Report} />
                 <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
                   <Project
