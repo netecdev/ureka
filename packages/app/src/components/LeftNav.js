@@ -10,6 +10,8 @@ const MenuLink = styled(NavLink)`
   display: block;
   height: 3em;
   line-height: 3em;
+  color: #fff;
+  text-decoration: none;
   span {
     font-size: 0.85em;
   }

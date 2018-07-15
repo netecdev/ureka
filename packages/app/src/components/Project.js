@@ -29,15 +29,15 @@ export type Project = {|
   reports: { [string]: Report }
 |}
 
-export type OnUploadApplication = () => any
+export type OnUploadApplication = (project: string) => any
 
 export type OnUploadReport = OnUploadApplication
 
-export type OnEditApplication = (id: string) => any
+export type OnEditApplication = (project: string, id: string) => any
 
 export type OnEditReport = OnEditApplication
 
-export type OnDeleteApplication = (id: string) => any
+export type OnDeleteApplication = (project: string, id: string) => any
 
 export type OnDeleteReport = OnDeleteApplication
 
@@ -48,15 +48,16 @@ const s: React.ComponentType<{
   onDeleteReport?: OnDeleteReport,
   onEditApplication?: OnEditApplication,
   onEditReport?: OnEditReport,
-  children: [string, Project]
-}> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: [id, project]}) => (
+  id: string,
+  children: Project
+}> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project, id}) => (
   <Container className={className}>
     <Header>
       Applications
       {
         onUploadApplication
         && (
-          <Action onClick={wrapClick(onUploadApplication)}>
+          <Action onClick={wrapClick(() => onUploadApplication(id))}>
             <UploadIcon />
           </Action>
         )
@@ -84,7 +85,7 @@ const s: React.ComponentType<{
               {
                 onEditApplication
                 && (
-                  <Action onClick={wrapClick(() => onEditApplication(i))}>
+                  <Action onClick={wrapClick(() => onEditApplication(id, i))}>
                     <EditIcon />
                   </Action>
                 )
@@ -93,7 +94,7 @@ const s: React.ComponentType<{
               {
                 onDeleteApplication
                 && (
-                  <Action color='red' onClick={wrapClick(() => onDeleteApplication(i))}>
+                  <Action color='red' onClick={wrapClick(() => onDeleteApplication(id, i))}>
                     <TrashIcon />
                   </Action>
                 )
@@ -107,7 +108,7 @@ const s: React.ComponentType<{
       {
         onUploadReport
         && (
-          <Action onClick={wrapClick(onUploadReport)}>
+          <Action onClick={wrapClick(() => onUploadReport(id))}>
             <UploadIcon />
           </Action>
         )
@@ -126,7 +127,7 @@ const s: React.ComponentType<{
                 </Title>
                 {onEditReport
                 && (
-                  <Action onClick={wrapClick(() => onEditReport(i))}>
+                  <Action onClick={wrapClick(() => onEditReport(id, i))}>
                     <EditIcon />
                   </Action>
                 )
@@ -134,7 +135,7 @@ const s: React.ComponentType<{
                 {
                   onDeleteReport
                   && (
-                    <Action color='red' onClick={wrapClick(() => onDeleteReport(i))}>
+                    <Action color='red' onClick={wrapClick(() => onDeleteReport(id, i))}>
                       <TrashIcon />
                     </Action>
                   )
