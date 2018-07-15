@@ -81,8 +81,10 @@ const AnnotateBox = styled.div`
   z-index: 10;
   animation: ${fadeInKf} 0.1s ease-in;
   ${EditIcon} {
+    transition: 0.1s opacity;
+    opacity: ${({active}) => active ? 1 : 0};
     position: absolute;
-    bottom: 0em;
+    bottom: 0;
     right: 0;
     height: 1em;
     width: 1em;
@@ -166,7 +168,7 @@ const ImageContainer = styled.div`
 `
 
 class Annotator extends React.Component<{| app: App |}, {| canvas: ?Can, open: number |}> {
-  state = {canvas: null, open: 0}
+  state = {canvas: null, open: -1}
   _ref: ?HTMLImageElement
   _onLoad = (evt) => {
     this._load(evt.target)
