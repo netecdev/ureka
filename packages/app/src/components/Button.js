@@ -13,13 +13,17 @@ const colors = {
   default: {
     color: '#fff',
     bg: '#23e2d9'
+  },
+  grey: {
+    color: '#fff',
+    bg: '#919191'
   }
 }
 
 export default styled.button`
   box-sizing: border-box;
-  background-color: ${({negative, positive}) => (negative && colors.negative.bg) || (positive && colors.positive.bg) || colors.default.bg};
-  color: ${({negative, positive}) => (negative && colors.negative.color) || (positive && colors.positive.color) || colors.default.color};
+  background-color: ${({negative, positive, grey}) => (negative && colors.negative.bg) || (positive && colors.positive.bg) || (grey && colors.grey.bg) || colors.default.bg};
+  color: ${({negative, positive, grey}) => (negative && colors.negative.color) || (positive && colors.positive.color) || (grey && colors.grey.color)  || colors.default.color};
   border: 0;
   height: 2.5rem;
   font-weight: 300;

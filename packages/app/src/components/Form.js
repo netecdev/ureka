@@ -10,17 +10,6 @@ const Input = styled.input`
   display: block;
 `
 
-export const Label = styled.label`
-  line-height: 1.5em;
-  padding-top: 0.5em;
-  font-weight: 700;
-  color: #363636;
-  display: block;
-  ${Input} {
-    margin-top: 0;
-  }
-`
-
 const SubmitStyle = Button.withComponent(Input)
 
 export const Submit = styled((props) => (
@@ -36,6 +25,40 @@ export const TextField = styled(Input).attrs(({type: 'text'}))`
   padding: 0 0.1em;
   max-width: 20em;
   width: 100%;
+  border: 0.05em solid #d8d8d8;
+`
+
+export const TextArea = styled.textarea`
+  box-sizing: border-box;
+  display: block;
+  margin-top: 2em;
+  font-family: Roboto, sans-serif;
+  border: 0.05em solid #d8d8d8;
+  width: 100%;
+  min-height: 20em;
+  
+`
+
+export const Label = styled.label`
+  line-height: 1.5em;
+  padding-top: 0.5em;
+  font-weight: 700;
+  color: #363636;
+  display: block;
+  ${Input}, ${TextArea} {
+    margin-top: 0;
+  }
+`
+
+export const Buttons = styled.div`
+  ${Button} {
+    margin-top: 2em;
+  }
+  
+  ${Button}:not(:last-of-type) {  
+    margin-right: 1em;
+  }
+
 `
 
 export default styled.form`

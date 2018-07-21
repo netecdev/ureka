@@ -25,6 +25,7 @@ const PopUp = styled.div`
   left: 50%;
   width: 40em;
   margin-left: -20em;
+  color: #696969;
   min-height: 4em;
   z-index: 1002;
   ${CloseIcon} {

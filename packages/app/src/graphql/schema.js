@@ -3,8 +3,6 @@
 import { makeExecutableSchema } from 'graphql-tools'
 import typeDefs from '../../graphql/schema.graphqls'
 
-console.log(typeDefs)
-
 export type Context = {}
 
 

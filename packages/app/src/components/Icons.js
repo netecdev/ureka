@@ -75,8 +75,16 @@ export const AddIcon = styled(({className}) => (
   </Icon>
 ))``
 
-export const EditIcon = styled(({className}) => (
+
+export const PlusIcon = styled(({className}) => (
   <Icon className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd"
+        clipRule="evenodd">
+    <path d="M11 11v-11h1v11h11v1h-11v11h-1v-11h-11v-1h11z"/>
+  </Icon>
+))``
+
+export const EditIcon = styled(props => (
+  <Icon {...props} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd"
         clipRule="evenodd">
     <path
       d="M8.071 21.586l-7.071 1.414 1.414-7.071 14.929-14.929 5.657 5.657-14.929 14.929zm-.493-.921l-4.243-4.243-1.06 5.303 5.303-1.06zm9.765-18.251l-13.3 13.301 4.242 4.242 13.301-13.3-4.243-4.243z" />
@@ -84,13 +92,21 @@ export const EditIcon = styled(({className}) => (
 ))``
 
 export const CloseIcon = styled(props => (
-  <svg
+  <Icon
     {...props}
-    viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fillRule="evenodd"
+    viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg"
+    fillRule="evenodd"
     clipRule="evenodd">
     <path
       d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z" />
-  </svg>
+  </Icon>
 ))`
 
 `
+export const CheckmarkIcon = styled(props => (
+  <Icon
+    {...props}
+    viewBox='0 0 24 24' xmlns="http://www.w3.org/2000/svg" fillRule="evenodd"
+    clipRule="evenodd">
+    <path d="M24 4.685l-16.327 17.315-7.673-9.054.761-.648 6.95 8.203 15.561-16.501.728.685z" />
+  </Icon>))``

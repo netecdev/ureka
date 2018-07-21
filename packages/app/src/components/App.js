@@ -51,6 +51,16 @@ const Container = styled.div`
   }
 `
 
+const LoremIpsum = `
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sit amet volutpat mauris. Pellentesque
+habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean a efficitur urna.
+Mauris eu quam ullamcorper, tincidunt ipsum non, tincidunt mi. Etiam ultricies, nisi a faucibus venenatis,
+nulla augue scelerisque justo, vel pellentesque augue felis at mi. Duis vel consectetur elit, eu ultrices
+dui. Morbi diam velit, tincidunt gravida orci a, imperdiet porttitor ex. Nulla in nisl lectus. Morbi non
+dolor eget ante aliquam ornare et eu diam. Phasellus ac interdum augue. Duis urna turpis, posuere non
+commodo nec, placerat quis elit. Vivamus semper molestie augue, vel convallis massa maximus nec. Proin at
+metus eu diam scelerisque blandit.`
+
 const data = {
   projects: {
     foo: {
@@ -69,9 +79,9 @@ const data = {
               y: 40,
               width: 100,
               height: 240,
-              description: 'Loltime 3'
+              description: LoremIpsum
             }
-          ]
+            ]
         },
         '2': {
           url: '/screenshot.png',
@@ -400,7 +410,6 @@ export default class App extends React.Component<{}, {| modal: ?ModalT |}> {
                 </TopNav>
               )} />
               <Route path={'/projects/:project/reports/:report'} render={({match: {params: {project, report}}}) => {
-                console.log(report)
                 return (
                   <TopNav>
                     {[
