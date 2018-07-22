@@ -1,0 +1,6 @@
+mutation UploadReport ($project: ID!, $name: String!, $file: Upload!) {
+    createReport(project: $project, name: $name, file: $file) {
+        id
+        name
+    }
+}

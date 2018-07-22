@@ -5,6 +5,7 @@ import KeyGrapper from './KeyGrapper'
 import { EditIcon, CheckmarkIcon, CloseIcon, Icon, AddIcon, PlusIcon } from './Icons'
 import Form, { Buttons, Label, Submit, TextArea } from './Form'
 import Button from './Button'
+import ReactMarkdown from 'react-markdown'
 
 type AnnotationType = 'design' | 'functionality' | 'language' | 'usability'
 
@@ -91,20 +92,24 @@ const InvisibleDragLR = styled(InvisibleDrag)`
 const AnnotateActionIcons = styled.div`
   display: flex;
   justify-content: space-between;
+
+`
+const Action = styled.div`
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: 1em;
+  width: 1em;
+  border-radius: 1em;
+  background-color: ${({red}) => red ? '#c63a3a' : '#0fab0a'};
+  padding: 0.5em;
   ${Icon} {
     fill: #fff;
-    width: 1.5em;
-    height: 1.5em;
-    padding: 0.25em;
+    width: 1em;
+    height: 1em;
     cursor: pointer;
   }
-  ${CheckmarkIcon} {    
-    background-color: #49a046;
-  }
-  ${CloseIcon} {
-    background-color: #970000;
-  }
 `
+
 
 const AnnotateBox = styled.div.attrs({
   style: ({x, y, width, height, scale, offsetLeft, manual}) => {
@@ -168,7 +173,7 @@ const AnnotateLabel = styled.div`
   ${EditIcon} {
     height: 1em;
     width: 1em;
-    margin-left: 0.5em;
+    float: right;
     fill: #ff00b4;
   }
   animation: ${fadeInAndDownKf} 0.1s ease-in;
@@ -189,7 +194,7 @@ class Dragger extends React.Component<{| scale: number, children: React.Element<
   _y: number
   _ref: HTMLDivElement
 
-  _dragStart = (e: DragEvent)=> {
+  _dragStart = (e: DragEvent) => {
     this._x = e.clientX
     this._y = e.clientY
   }
@@ -227,7 +232,6 @@ class Dragger extends React.Component<{| scale: number, children: React.Element<
     )
   }
 }
-
 
 class DraggerContainer extends React.Component<{|
   scale: number, offsetLeft: number,
@@ -299,7 +303,7 @@ class DraggerContainer extends React.Component<{|
   _close = () => this.props.onClose && this.props.onClose()
 
   render () {
-   return (
+    return (
       <AnnotateBox
         manual
         innerRef={r => {
@@ -314,8 +318,12 @@ class DraggerContainer extends React.Component<{|
           <InvisibleDragUL />
         </Dragger>
         <AnnotateActionIcons>
-          <CheckmarkIcon onClick={this._save} />
-          <CloseIcon onClick={this._close} />
+          <Action>
+            <CheckmarkIcon onClick={this._save} />
+          </Action>
+          <Action red>
+            <CloseIcon onClick={this._close} />
+          </Action>
         </AnnotateActionIcons>
       </AnnotateBox>
     )
@@ -332,11 +340,11 @@ type AProps = {|
   onClick?: () => any,
   onEditBox?: () => any,
   onEditText?: () => any,
-  onSaveText?: ({description: string, type: AnnotationType}) => any,
+  onSaveText?: ({ description: string, type: AnnotationType }) => any,
   onSaveBox?: (rect: Rect) => any
 |}
 
-class A extends React.Component<AProps, {description: string, type: AnnotationType}> {
+class A extends React.Component<AProps, { description: string, type: AnnotationType }> {
   state = {
     description: this.props.annotation.description,
     type: this.props.annotation.type
@@ -356,12 +364,13 @@ class A extends React.Component<AProps, {description: string, type: AnnotationTy
     e.preventDefault()
     this.props.onStopEdit && this.props.onStopEdit()
   }
+
   _renderTextEditor () {
     return (
       <Form>
         <Label>
           Description
-          <TextArea value={this.state.description} onChange={(e) => this.setState({description: e.target.value})}/>
+          <TextArea value={this.state.description} onChange={(e) => this.setState({description: e.target.value})} />
         </Label>
         <Buttons>
           <Button onClick={this._save}>
@@ -403,10 +412,10 @@ class A extends React.Component<AProps, {description: string, type: AnnotationTy
             {this.props.editing === 'text' ? (
               this._renderTextEditor()
             ) : (
-              <p>
-                {this.props.annotation.description}
+              <div>
+                <ReactMarkdown source={this.props.annotation.description} />
                 <EditIcon onClick={this._editText} />
-              </p>
+              </div>
             )}
           </AnnotateLabel>
         )}
@@ -445,7 +454,7 @@ const Adder = styled.div`
   }
 `
 
-class Annotator extends React.Component<{| app: App |}, {| canvas: ?Can, open: number, editing: ?{| id?: number, action: 'box' | 'text' |}, adding: boolean | {annotation: Annotation, step: number} |}> {
+class Annotator extends React.Component<{| app: App |}, {| canvas: ?Can, open: number, editing: ?{| id?: number, action: 'box' | 'text' |}, adding: boolean | { annotation: Annotation, step: number } |}> {
   state = {canvas: null, open: -1, editing: null, adding: false}
   _ref: ?HTMLImageElement
   _onLoad = (evt) => {
@@ -519,8 +528,13 @@ class Annotator extends React.Component<{| app: App |}, {| canvas: ?Can, open: n
         open
         canvas={can}
         app={this.props.app}
-        editing={ this.state.adding.step === 0 ? 'box' : 'text'}
-        onSaveBox={(rect) =>  this.setState(({adding}) => adding && adding !== true ? ({adding: {step: 1, annotation: {...adding.annotation, ...rect}}}) : {})}
+        editing={this.state.adding.step === 0 ? 'box' : 'text'}
+        onSaveBox={(rect) => this.setState(({adding}) => adding && adding !== true ? ({
+          adding: {
+            step: 1,
+            annotation: {...adding.annotation, ...rect}
+          }
+        }) : {})}
         onStopEdit={() => this.setState({adding: false})}
         annotation={this.state.adding.annotation} />
     )

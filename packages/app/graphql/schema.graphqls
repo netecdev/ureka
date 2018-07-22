@@ -1,35 +1,166 @@
-type File {
+# Interface for common file properties.
+interface File {
+    # A globally accessible url.
     url: String!
-    name: String!
 }
 
-type Screenshot implements File {
+# An image file.
+type Image implements File {
+    # A globally accessible url.
     url: String!
-    name: String!
-    width: Int!
+    # Image height in pixels.
     height: Int!
+    # Image width in pixels.
+    width: Int!
 }
 
-type Report implements File {
+# An PDF file.
+type Pdf implements File {
+    # A globally accessible url.
     url: String!
-    name: String!
 }
+
+
+# Different supported annotation types.
+enum AnnotationType {
+    # Design annotations
+    DESIGN
+    # Functionality annotations
+    FUNCTIONALITY
+    # Language annotations
+    LANGUAGE
+    # Usability annotations
+    USABILITY
+}
+
+# An annotation on a image. This is basically a rectangle with
+# some description and type.
+type Annotation {
+    # The x position of the annotation
+    x: Int!
+    # The y position of the annotation
+    y: Int!
+    # The width of the annotation
+    width: Int!
+    # The hight of the annotation
+    height: Int!
+    # A description accompanying the annotation
+    description: String!
+    # The type of the annotation
+    type: AnnotationType!
+}
+
+# Currently supported application types.
+enum ApplicationType {
+    # Mobile application for screenshots of apps.
+    MOBILE
+    # Desktop application for screenshots of e.g. websites.
+    DESKTOP
+}
+
+# An application containing a screenshot and and some annotations
+type Application {
+    # The unique identifier of the application.
+    id: ID!
+    # The name of the application.
+    name: String!
+    # A screenshot defining the application.
+    screenshot: Image!
+    # A collection of annotations on the screenshot.
+    annotations: [Annotation!]!
+    # A application type.
+    type: ApplicationType!
+}
+
+# A report.
+type Report {
+    # An uniqe identifier for the report.
+    id: ID!
+    # The name of the report
+    name: String!
+    # The PDF file which contains the report.
+    document: Pdf!
+}
+
 
 type Project {
+    id: ID!
     name: String!
-    screenshots: [Screenshot!]!
+    applications: [Application!]!
     reports: [Report!]!
 }
 
+# Page info which is useful for pagination.
+type PageInfo {
+    # The total count of items.
+    totalCount: Int!
+    # Indicating if there are more pages.
+    hasNextPage: Boolean!
+    # If backwards pagination is supported,
+    # this indicates if there are more pages
+    # "backwards".
+    hasPreviousPage: Boolean!
+}
+
+# An edge containing a project.
+type ProjectEdge {
+    # The project.
+    node: Project!
+    # Cursor which can be used for pagination.
+    cursor: Cursor!
+}
+
+# A coneciton of projects.
+type ProjectConnection {
+    # The projects
+    edges: [ProjectEdge!]!
+    # Page info containing information which can be use for pagination.
+    pageInfo: PageInfo!
+}
+
+# The root query!
 type Query {
-    project(id: ID): Project
+    # A project
+    project(
+        # The project ID.
+        id: ID
+    ): Project
+
+    # List available projects.
+    projects(
+        # The page size.
+        first: Int = 10
+        # An optional cursor.
+        after: Cursor
+    ): ProjectConnection!
+}
+
+type DeleteResult {
+    deleted: Int
 }
 
 type Mutation {
     createProject(name: String!): Project!
+    createApplication(project: ID!, name: String!, type: ApplicationType!, file: Upload!): Application!
+    createReport(project: ID!, name: String!, file: Upload!): Report!
+    createAnnotation(application: ID, x: Int!, y: Int!, description: String!, type: AnnotationType!): Annotation!
+
+    updateReport(id: ID!, name: String): Report!
+    updateApplication(id: ID!, name: String, type: ApplicationType): Application!
+    updateProject(id: ID!, name: String): Project!
+    updateAnnotation(id: ID!, x: Int, y: Int, description: String, type: AnnotationType): Annotation!
+
+    deleteReport(id: ID!): DeleteResult!
+    deleteApplication(id: ID!): DeleteResult!
+    deleteProject(id: ID!): DeleteResult!
+    deleteAnnotation(id: ID!): DeleteResult!
 }
 
 schema {
     query: Query
     mutation: Mutation
 }
+
+scalar Upload
+
+scalar Cursor

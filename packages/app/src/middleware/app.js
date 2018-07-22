@@ -21,6 +21,7 @@ function gqlClient (accessToken: ?string) {
   })
   return new ApolloClient({
     ssrMode: true,
+    // $FlowFixMe its ok
     link,
     cache: new InMemoryCache()
   })

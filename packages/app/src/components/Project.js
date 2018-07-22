@@ -6,7 +6,7 @@ import { DesktopIcon, DocIcon, EditIcon, MobileIcon, TrashIcon, UploadIcon } fro
 import { Action, Container, Header, P, Title } from './Content'
 import { Item, ItemLink, List } from './List'
 import { wrapClick } from '../utils'
-import type { App } from './Screenshot'
+import * as gt from '../../graphql'
 
 const Link = styled.div`
   text-align: center;
@@ -15,96 +15,86 @@ const Link = styled.div`
   padding: 2em 0;
 `
 
-type Report = {|
-  title: string
-|}
-
-export type Project = {|
-  title: string,
-  apps: { [string]: App },
-  reports: { [string]: Report }
-|}
-
-export type OnUploadApplication = (project: string) => any
+export type OnUploadApplication = (project: gt.GetProject_project) => any
 
 export type OnUploadReport = OnUploadApplication
 
-export type OnEditApplication = (project: string, id: string) => any
+export type OnEditApplication = (project: gt.GetProject_project_applications) => any
 
-export type OnEditReport = OnEditApplication
+export type OnEditReport = (project: gt.GetProject_project_reports) => any
 
-export type OnDeleteApplication = (project: string, id: string) => any
+export type OnDeleteApplication = (project: gt.GetProject_project_applications) => any
 
-export type OnDeleteReport = OnDeleteApplication
+export type OnDeleteReport = (project: gt.GetProject_project_reports) => any
 
-const s: React.ComponentType<{
+type Ps = {
   onUploadApplication?: OnUploadApplication,
   onUploadReport?: OnUploadReport,
   onDeleteApplication?: OnDeleteApplication,
   onDeleteReport?: OnDeleteReport,
   onEditApplication?: OnEditApplication,
   onEditReport?: OnEditReport,
-  id: string,
-  children: Project
-}> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project, id}) => (
+  children: gt.GetProject_project,
+  className?: string
+}
+
+const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project}: Ps) => (
   <Container className={className}>
     <Header>
       Applications
       {
         onUploadApplication
         && (
-          <Action onClick={wrapClick(() => onUploadApplication(id))}>
+          <Action onClick={wrapClick(() => onUploadApplication(project))}>
             <UploadIcon />
           </Action>
         )
       }
     </Header>
     <List>
-      {Object
-        .keys(project.apps)
-        .map(i => (
-          <Item key={i}>
-            <ItemLink to={`/projects/${id}/apps/${i}`}>
-              {((type) => {
-                switch (type) {
-                  case 'mobile':
-                    return <MobileIcon />
-                  case 'desktop':
-                    return <DesktopIcon />
-                  default:
-                    return null
-                }
-              })(project.apps[i].type)}
-              <Title>
-                {project.apps[i].title}
-              </Title>
-              {
-                onEditApplication
-                && (
-                  <Action onClick={wrapClick(() => onEditApplication(id, i))}>
-                    <EditIcon />
-                  </Action>
-                )
+      {project.applications.map(node => (
+        <Item key={node.id}>
+          <ItemLink to={`/projects/${project.id}/apps/${node.id}`}>
+            {((type) => {
+              switch (type) {
+                case 'MOBILE':
+                  return <MobileIcon />
+                case 'DESKTOP':
+                  return <DesktopIcon />
+                default:
+                  return null
               }
+            })(node.type)}
+            <Title>
+              {node.name}
+            </Title>
+            {
+              onEditApplication
+              && (
+                <Action onClick={wrapClick(() => onEditApplication(node))}>
+                  <EditIcon />
+                </Action>
+              )
+            }
 
-              {
-                onDeleteApplication
-                && (
-                  <Action color='red' onClick={wrapClick(() => onDeleteApplication(id, i))}>
-                    <TrashIcon />
-                  </Action>
-                )
-              }
-            </ItemLink>
-          </Item>
-        ))}
+            {
+              onDeleteApplication
+              && (
+                <Action color='red' onClick={wrapClick(() => onDeleteApplication(node))}>
+                  <TrashIcon />
+                </Action>
+              )
+            }
+          </ItemLink>
+        </Item>
+      ))}
     </List>
     <Header>
       Reports
       {
         onUploadReport
         && (
-          <Action onClick={wrapClick(() => onUploadReport(id))}>
+          <Action onClick={wrapClick(() => onUploadReport(project))}>
             <UploadIcon />
           </Action>
         )
@@ -112,26 +102,24 @@ const s: React.ComponentType<{
     </Header>
     <List>
       {
-        Object
-          .keys(project.reports)
-          .map(i => (
-            <Item key={i}>
-              <ItemLink to={`/projects/${id}/reports/${i}`}>
+        project
+          .reports
+          .map(node => (
+            <Item key={node.id}>
+              <ItemLink to={`/projects/${project.id}/reports/${node.id}`}>
                 <DocIcon />
                 <Title>
-                  {project.reports[i].title}
+                  {node.name}
                 </Title>
                 {onEditReport
                 && (
-                  <Action onClick={wrapClick(() => onEditReport(id, i))}>
+                  <Action onClick={wrapClick(() => onEditReport(node))}>
                     <EditIcon />
-                  </Action>
-                )
-                }
+                  </Action>)}
                 {
                   onDeleteReport
                   && (
-                    <Action color='red' onClick={wrapClick(() => onDeleteReport(id, i))}>
+                    <Action color='red' onClick={wrapClick(() => onDeleteReport(node))}>
                       <TrashIcon />
                     </Action>
                   )
@@ -150,7 +138,7 @@ const s: React.ComponentType<{
       is required. This means that the project will be visible to all with access to the link.
     </P>
     <Link>
-      https://ureka.io/projects/{id}
+      https://ureka.io/projects/{project.id}
     </Link>
   </Container>
 )))``

@@ -3,15 +3,25 @@ import React, { Fragment } from 'react'
 import styled, { injectGlobal } from 'styled-components'
 import LeftNav from './LeftNav'
 import TopNav from './TopNav'
-import Screenshot from './Screenshot'
 import { Redirect, Route, Switch } from 'react-router'
 import Projects from './Projects'
-import Project from './Project'
-import Report from './Report'
 import Modal, { ModalActions } from './Modal'
 import { FileUpload, Label, Submit, TextField } from './Form'
 import Form from './Form'
 import Button from './Button'
+import { Mutation, type MutationFunction, Query, type QueryRenderProps } from 'react-apollo'
+import * as gt from '../../graphql'
+import GET_PROJECTS from '../../graphql/GetProjects.graphql'
+import GET_PROJECT from '../../graphql/GetProject.graphql'
+import ADD_PROJECT from '../../graphql/AddProject.graphql'
+import UPDATE_PROJECT from '../../graphql/UpdateProject.graphql'
+import DELETE_PROJECT from '../../graphql/DeleteProject.graphql'
+import UPDATE_REPORT from '../../graphql/UpdateReport.graphql'
+import UPLOAD_APP from '../../graphql/UploadApp.graphql'
+import DELETE_REPORT from '../../graphql/DeleteReport.graphql'
+import UPLOAD_REPORT from '../../graphql/UploadReport.graphql'
+import type { DocumentNode } from 'graphql'
+import Project from './Project'
 
 injectGlobal`
   body {
@@ -51,97 +61,49 @@ const Container = styled.div`
   }
 `
 
-const LoremIpsum = `
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sit amet volutpat mauris. Pellentesque
-habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean a efficitur urna.
-Mauris eu quam ullamcorper, tincidunt ipsum non, tincidunt mi. Etiam ultricies, nisi a faucibus venenatis,
-nulla augue scelerisque justo, vel pellentesque augue felis at mi. Duis vel consectetur elit, eu ultrices
-dui. Morbi diam velit, tincidunt gravida orci a, imperdiet porttitor ex. Nulla in nisl lectus. Morbi non
-dolor eget ante aliquam ornare et eu diam. Phasellus ac interdum augue. Duis urna turpis, posuere non
-commodo nec, placerat quis elit. Vivamus semper molestie augue, vel convallis massa maximus nec. Proin at
-metus eu diam scelerisque blandit.`
+class AddProject extends React.Component<{ onSuccess?: (id: string) => any }, { value: string }> {
+  state = {value: ''}
 
-const data = {
-  projects: {
-    foo: {
-      title: 'Foo',
-      apps: {
-        '1': {
-          title: 'Front page',
-          type: 'desktop',
-          url: '/screenshot.png',
-          height: 6347,
-          width: 1249,
-          annotations: [
-            {
-              type: 'design',
-              x: 400,
-              y: 40,
-              width: 100,
-              height: 240,
-              description: LoremIpsum
-            }
-            ]
-        },
-        '2': {
-          url: '/screenshot.png',
-          height: 6347,
-          width: 1249,
-          title: 'Main view',
-          type: 'mobile',
-          annotations: []
-        }
-      },
-      reports: {
-        '1': {title: 'Report 1'}
-      }
-    }
+  render () {
+    const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECTS}]
+    return (
+      <Mutation mutation={ADD_PROJECT} refetchQueries={refetch}>
+        {(addProject: MutationFunction<gt.AddProject, gt.AddProjectVariables>) => {
+          return (
+            <Fragment>
+              <h1>Add project</h1>
+              <p>
+                Create a new project.
+              </p>
+              <Form onSubmit={async (e) => {
+                e.preventDefault()
+                if (!this.state.value) {
+                  return
+                }
+                const res: { data?: gt.AddProject } | void = await addProject({variables: {name: this.state.value}})
+                this.setState({value: ''})
+                if (res && res.data) {
+                  this.props.onSuccess && this.props.onSuccess(res.data.createProject.id)
+                }
+
+              }}>
+                <Label>
+                  Project name
+                  <TextField
+                    placeholder={'Fancy project #1'}
+                    value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <Submit value={'Create'} disabled={!this.state.value} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
   }
 }
-
-type ModalT =
-  | {| kind: 'addProject' |}
-  | {| kind: 'deleteProject', id: string |}
-  | {| kind: 'editProject', id: string |}
-  | {| kind: 'uploadApplication', project: string |}
-  | {| kind: 'deleteApplication', id: string, project: string |}
-  | {| kind: 'editApplication', id: string, project: string |}
-  | {| kind: 'uploadReport', project: string |}
-  | {| kind: 'deleteReport', id: string, project: string |}
-  | {| kind: 'editReport', id: string, project: string |}
-
-const AddProject = () => (
-  <Fragment>
-    <h1>Add project</h1>
-    <p>
-      Create a new project.
-    </p>
-    <Form>
-      <Label>
-        Project name
-        <TextField placeholder={'Fancy project #1'} />
-      </Label>
-      <Submit value={'Create'} />
-    </Form>
-  </Fragment>
-)
-
-const EditReport = ({project, id}) => (
-  <Fragment>
-    <h1>Edit project</h1>
-    <p>
-      Update the report information.
-    </p>
-    <Form>
-      <Label>
-        Report name
-        <TextField defaultValue={data.projects[project].reports[id].title} />
-      </Label>
-      <Submit value={'Change'} />
-    </Form>
-  </Fragment>
-)
-
+/*
 const EditApp = ({id, project}) => (
   <Fragment>
     <h1>Edit application</h1>
@@ -157,41 +119,134 @@ const EditApp = ({id, project}) => (
     </Form>
   </Fragment>
 )
+*/
+class EditReport extends React.Component<{ id: string, name: string, project: string, onClose: () => any }, { value: string }> {
+  state = {value: this.props.name}
 
-const EditProject = ({id}) => (
-  <Fragment>
-    <h1>Edit project</h1>
-    <p>
-      Update the base project information.
-    </p>
-    <Form>
-      <Label>
-        Project name
-        <TextField defaultValue={data.projects[id].title} />
-      </Label>
-      <Submit value={'Change'} />
-    </Form>
-  </Fragment>
+  render () {
+    const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECT, variables: {id: this.props.project}}]
+    return (
+      <Mutation mutation={UPDATE_REPORT} refetchQueries={refetch}>
+        {(addProject: MutationFunction<gt.UpdateReport, gt.UpdateReportVariables>) => {
+          return (
+            <Fragment>
+              <h1>Edit report</h1>
+              <p>
+                Update the report information.
+              </p>
+              <Form onSubmit={async (e) => {
+                e.preventDefault()
+                if (!this.state.value) {
+                  return
+                }
+                const res: { data?: gt.UpdateProject } | void = await addProject({
+                  variables: {
+                    id: this.props.id,
+                    name: this.state.value
+                  }
+                })
+                this.setState({value: ''})
+                if (res && res.data) {
+                  this.props.onClose()
+                }
+
+              }}>
+                <Label>
+                  Report name
+                  <TextField
+                    value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <Submit value={'Change'} disabled={!this.state.value} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
+  }
+}
+class EditProject extends React.Component<{ id: string, name: string, onSuccess?: () => any }, { value: string }> {
+  state = {value: this.props.name}
+
+  render () {
+    const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECTS}]
+    return (
+      <Mutation mutation={UPDATE_PROJECT} refetchQueries={refetch}>
+        {(addProject: MutationFunction<gt.UpdateProject, gt.UpdateProjectVariables>) => {
+          return (
+            <Fragment>
+              <h1>Edit project</h1>
+              <p>
+                Update the base project information.
+              </p>
+              <Form onSubmit={async (e) => {
+                e.preventDefault()
+                if (!this.state.value) {
+                  return
+                }
+                const res: { data?: gt.UpdateProject } | void = await addProject({
+                  variables: {
+                    id: this.props.id,
+                    name: this.state.value
+                  }
+                })
+                this.setState({value: ''})
+                if (res && res.data) {
+                  this.props.onSuccess && this.props.onSuccess()
+                }
+
+              }}>
+                <Label>
+                  Project name
+                  <TextField
+                    placeholder={'Fancy project #1'}
+                    value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <Submit value={'Change'} disabled={!this.state.value} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
+  }
+}
+
+const ps: { query: *, variables: * }[] = [
+  {query: GET_PROJECTS, variables: {}}
+]
+
+const DeleteProject = ({id, name, onClose}) => (
+  <Mutation
+    mutation={DELETE_PROJECT}
+    refetchQueries={ps}>
+    {(mutate: MutationFunction<gt.DeleteProject, gt.DeleteProjectVariables>) => {
+      return (
+        <Fragment>
+          <h1>Delete project</h1>
+          <p>
+            Are you sure that you want to delete project <i>{name}</i>? When deleted the project can not
+            be restored.
+          </p>
+          <ModalActions>
+            <Button positive onClick={async () => {
+              await mutate({variables: {id}})
+              onClose()
+            }}>
+              Yes
+            </Button>
+            <Button negative onClick={onClose}>
+              No
+            </Button>
+          </ModalActions>
+        </Fragment>
+      )
+    }}
+  </Mutation>
 )
-
-const DeleteProject = ({id}) => (
-  <Fragment>
-    <h1>Delete project</h1>
-    <p>
-      Are you sure that you want to delete project <i>{data.projects[id].title}</i>? When deleted the project can not
-      be restored.
-    </p>
-    <ModalActions>
-      <Button positive>
-        Yes
-      </Button>
-      <Button negative>
-        No
-      </Button>
-    </ModalActions>
-  </Fragment>
-)
-
+/*
 const DeleteApp = ({id, project}) => (
   <Fragment>
     <h1>Delete application</h1>
@@ -210,24 +265,34 @@ const DeleteApp = ({id, project}) => (
     </ModalActions>
   </Fragment>
 )
-
-const DeleteReport = ({id, project}) => (
-  <Fragment>
-    <h1>Delete report</h1>
-    <p>
-      Are you sure that you want to delete report <i>{data.projects[project].reports[id].title}</i>? When deleted the
-      project can not
-      be restored.
-    </p>
-    <ModalActions>
-      <Button positive>
-        Yes
-      </Button>
-      <Button negative>
-        No
-      </Button>
-    </ModalActions>
-  </Fragment>
+*/
+const DeleteReport = ({id, name, onClose, project}) => (
+  <Mutation
+    mutation={DELETE_REPORT}
+    refetchQueries={(): { query: *, variables: * }[] => ([{query: GET_PROJECT, variables: {id: project}}])}>
+    {(mutate: MutationFunction<gt.DeleteReport, gt.DeleteReportVariables>) => {
+      return (
+        <Fragment>
+          <h1>Delete report</h1>
+          <p>
+            Are you sure that you want to delete report <i>{name}</i>? When deleted the
+            project can not
+            be restored.
+          </p>
+          <ModalActions>
+            <Button positive onClick={async () => {
+              await mutate({variables: {id}})
+              onClose()
+            }}>
+              Yes
+            </Button>
+            <Button negative onClick={onClose}>
+              No
+            </Button>
+          </ModalActions>
+        </Fragment>)
+    }}
+  </Mutation>
 )
 
 const UploadApp = ({project}) => (
@@ -249,26 +314,214 @@ const UploadApp = ({project}) => (
   </Fragment>
 )
 
-const UploadReport = ({project}) => (
-  <Fragment>
-    <h1>
-      Upload report
-    </h1>
-    <p>
-      Upload a new report!
-    </p>
-    <Form>
-      <Label>
-        Name
-        <TextField placeholder={'Fancy report'} />
-      </Label>
-      <FileUpload />
-      <Submit value={'Upload'} />
-    </Form>
-  </Fragment>
-)
+class UploadReport extends React.Component<{ project: string, onClose: () => any }, { value: string, hasFile: boolean }> {
+  state = {value: '', hasFile: false}
+  _file: ?File
 
-export default class App extends React.Component<{}, {| modal: ?ModalT |}> {
+  render () {
+    const refetch: { query: DocumentNode, variables?: {} }[] = [{
+      query: GET_PROJECT,
+      variables: {id: this.props.project}
+    }]
+    return (
+      <Mutation mutation={UPLOAD_REPORT} refetchQueries={refetch}>
+        {(upload: MutationFunction<gt.UploadReport, gt.UploadReportVariables>) => {
+          return (
+            <Fragment>
+              <h1>
+                Upload report
+              </h1>
+              <p>
+                Upload a new report!
+              </p>
+              <Form onSubmit={async e => {
+                e.preventDefault()
+                await upload({variables: {file: this._file, name: this.state.value, project: this.props.project}})
+                this.props.onClose()
+              }}>
+                <Label>
+                  Name
+                  <TextField
+                    placeholder={'Fancy report'}
+                    value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <FileUpload onChange={e => {
+                  const file = e.target.files[0]
+                  if (!file) return
+                  this.setState(
+                    ({value}) => ({value: value || file.name, hasFile: true}),
+                    () => {
+                      this._file = file
+                    })
+                }} />
+                <Submit value={'Upload'} disabled={!this.state.value || !this.state.hasFile} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
+  }
+}
+
+class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'create' } | { kind: 'update', p: gt.GetProjects_projects_edges_node } | { kind: 'delete', p: gt.GetProjects_projects_edges_node }) }> {
+  state = {modal: null, sesh: 0}
+
+  render () {
+    return (
+      <Query query={GET_PROJECTS} ssr variables={{first: 10}}>
+        {({loading, error, data}: QueryRenderProps<gt.GetProjects, gt.GetProjectsVariables>) => {
+          if (loading || error) {
+            return null
+          }
+          const projects = (data && data.projects && data.projects.edges) || []
+          return (
+            <Fragment>
+              <LeftNav>
+                {
+                  [
+                    {
+                      header: 'Overview',
+                      menu: [
+                        {
+                          title: 'Projects',
+                          to: this.props.match.url
+                        }
+                      ]
+                    }
+                  ]
+                }
+              </LeftNav>
+              <Content>
+                <TopNav>
+                  {[
+                    {
+                      title: 'Projects',
+                      type: '',
+                      to: this.props.match.url
+                    }
+                  ]}
+                </TopNav>
+                <Projects
+                  url={this.props.match.url}
+                  onDeleteProject={p => this.setState({modal: {kind: 'delete', p}})}
+                  onEditProject={p => this.setState({modal: {kind: 'update', p}})}
+                  onAddProject={() => this.setState({modal: {kind: 'create'}})}>
+                  {projects}
+                </Projects>
+              </Content>
+              {this.state.modal && (
+                <Modal onClose={() => this.setState({modal: null})}>
+                  {this.state.modal.kind === 'create' &&
+                  <AddProject onSuccess={(id) => {this.props.history.push(`${this.props.match.url}/${id}`)}} />}
+                  {this.state.modal.kind === 'delete' &&
+                  <DeleteProject {...this.state.modal.p} onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal.kind === 'update' &&
+                  <EditProject {...this.state.modal.p} onSuccess={() => this.setState({modal: null})} />}
+                </Modal>
+              )}
+            </Fragment>
+          )
+        }}
+      </Query>
+    )
+  }
+}
+
+type ProjectModal =
+  | { kind: 'uploadApplication' }
+  | { kind: 'uploadReport' }
+  | { kind: 'deleteReport', report: gt.GetProject_project_reports }
+  | { kind: 'editReport', report: gt.GetProject_project_reports }
+
+class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
+  state = {modal: null}
+
+  render () {
+    return (
+      <Query query={GET_PROJECT} ssr variables={{id: this.props.match.params.project || ''}}>
+        {({data, loading, error}: QueryRenderProps<gt.GetProject, gt.GetProjectVariables>) => {
+          if (loading || error || !data || !data.project) return null
+          const project = data.project
+          return (
+            <Fragment>
+              <LeftNav>
+                {[
+                  {
+                    header: 'Applications',
+                    menu: project.applications.map(app => (
+                      {
+                        title: app.name,
+                        to: `${this.props.match.url}/apps/${app.id}`
+                      }
+                    ))
+                  },
+                  {
+                    header: 'Reports',
+                    menu: project.reports.map(report => (
+                      {
+                        title: report.name,
+                        to: `${this.props.match.url}/reports/${report.id}`
+                      }
+                    ))
+                  }
+                ]}
+              </LeftNav>
+              <Content>
+                <TopNav>
+                  {[
+                    {
+                      type: 'Project',
+                      title: project.name,
+                      to: `${this.props.match.url}`
+                    }
+                  ]}
+                </TopNav>
+                <Project
+                  onEditReport={report => this.setState({modal: {kind: 'editReport', report}})}
+                  onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
+                  onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
+                  onUploadApplication={() => this.setState({modal: {kind: 'uploadApplication'}})}
+                >
+                  {project}
+                </Project>
+              </Content>
+              {this.state.modal && (
+                <Modal onClose={() => this.setState({modal: null})}>
+                  {this.state.modal && this.state.modal.kind === 'uploadApplication' &&
+                  <UploadApp onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal && this.state.modal.kind === 'uploadReport' &&
+                  <UploadReport project={project.id} onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal && this.state.modal.kind === 'deleteReport' &&
+                  <DeleteReport
+                    {...this.state.modal.report} project={project.id}
+                    onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal && this.state.modal.kind === 'editReport' &&
+                  <EditReport
+                    {...this.state.modal.report} project={project.id}
+                    onClose={() => this.setState({modal: null})} />}
+                </Modal>
+              )}
+            </Fragment>
+          )
+        }}
+      </Query>
+    )
+  }
+}
+
+export default () => (
+  <Container>
+    <Switch>
+      <Route path={'/projects/:project'} component={ProjectW} />
+      <Route path={'/projects'} component={ProjectsW} />
+      <Redirect from={'/'} to={'/projects'} />
+    </Switch>
+  </Container>
+)
+/*
+class App extends React.Component<{}, {| modal: ?ModalT |}> {
   state = {modal: null}
 
   onAddProject = () => this.setState({modal: {kind: 'addProject'}})
@@ -491,3 +744,4 @@ export default class App extends React.Component<{}, {| modal: ?ModalT |}> {
     )
   }
 }
+*/

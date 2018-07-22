@@ -1,0 +1,10 @@
+query GetProjects($after: Cursor) {
+    projects(first: 10, after: $after){
+        edges {
+            node {
+                id
+                name
+            }
+        }
+    }
+}

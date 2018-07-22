@@ -10,3 +10,6 @@ api:
     http: http://localhost:1337
     ws: ws://localhost:1337
 
+
+mongo:
+  url: mongodb://localhost:27017/ureka?replicaSet=rs0

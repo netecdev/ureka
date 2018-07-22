@@ -1,0 +1,7 @@
+mutation UploadApp ($project: ID!, $name: String!, $type: ApplicationType!, $file: Upload!) {
+    createApplication(project: $project, name: $name, type: $type, file: $file) {
+        id
+        name
+        type
+    }
+}

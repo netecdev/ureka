@@ -4,22 +4,33 @@ import { graphiqlKoa, graphqlKoa } from 'apollo-server-koa'
 import compose from 'koa-compose'
 import config from 'config'
 import schema, { type Context } from '../graphql/schema'
+import { apolloUploadKoa } from 'apollo-upload-server'
+import koaBody from 'koa-bodyparser'
+import Db from '../db'
 
 const router = new KoaRouter()
 
 async function ctxToContext (ctx): Promise<Context> {
-  return {}
+  return {
+    db: new Db()
+  }
 }
 
-router.post('/graphql', async (ctx, next) => graphqlKoa({
-  schema,
-  context: await ctxToContext(ctx)
-})(ctx, next))
+router.post('/graphql',
+  koaBody(),
+  apolloUploadKoa(),
+  async (ctx, next) => graphqlKoa({
+    schema,
+    context: await ctxToContext(ctx)
+  })(ctx, next))
 
-router.get('/graphql', async (ctx, next) => graphqlKoa({
-  schema,
-  context: await ctxToContext(ctx)
-})(ctx, next))
+router.get('/graphql',
+  koaBody(),
+  apolloUploadKoa(),
+  async (ctx, next) => graphqlKoa({
+    schema,
+    context: await ctxToContext(ctx)
+  })(ctx, next))
 
 // Setup the /graphiql route to show the GraphiQL UI
 router.get(

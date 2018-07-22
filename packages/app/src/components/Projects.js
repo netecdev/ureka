@@ -4,20 +4,24 @@ import { Action, Container, Header, Title } from './Content'
 import { Item, ItemLink, List } from './List'
 import { AddIcon, EditIcon, ProjectIcon, TrashIcon } from './Icons'
 import styled from 'styled-components'
-import type { Project } from './Project'
+import * as gt from '../../graphql'
 import { wrapClick } from '../utils'
 
 export type OnAddProjectF = () => any
-export type OnDeleteProjectF = (id: string) => any
-export type OnEditProjectF = (id: string) => any
+export type OnDeleteProjectF = (p: gt.GetProjects_projects_edges_node) => any
+export type OnEditProjectF = (p: gt.GetProjects_projects_edges_node) => any
 
-const s: React.ComponentType<{
+type Props = {
+  className?: string,
   onAddProject?: OnAddProjectF,
   onDeleteProject?: OnDeleteProjectF,
   onEditProject?: OnEditProjectF,
-  children: { [string]: Project }
-}> =
-  styled(({className, children, onAddProject, onDeleteProject, onEditProject}) => (
+  children: gt.GetProjects_projects_edges[],
+  url: string
+}
+
+const s: React.ComponentType<Props> =
+  styled(({className, children, onAddProject, onDeleteProject, onEditProject, url}: Props) => (
     <Container className={className}>
       <Header>
         Current projects
@@ -31,23 +35,23 @@ const s: React.ComponentType<{
         }
       </Header>
       <List>
-        {Object.keys(children).map(id => (
-          <Item key={id}>
-            <ItemLink to={`/projects/${id}`}>
+        {children.map(({node}) => (
+          <Item key={node.id}>
+            <ItemLink to={`${url}/${node.id}`}>
               <ProjectIcon />
               <Title>
-                {children[id].title}
+                {node.name}
               </Title>
               {onEditProject
               && (
-                <Action onClick={wrapClick(() => onEditProject(id))}>
+                <Action onClick={wrapClick(() => onEditProject(node))}>
                   <EditIcon />
                 </Action>
               )
               }
               {onDeleteProject
               && (
-                <Action color={'red'} onClick={wrapClick(() => onDeleteProject(id))}>
+                <Action color={'red'} onClick={wrapClick(() => onDeleteProject(node))}>
                   <TrashIcon />
                 </Action>
               )}

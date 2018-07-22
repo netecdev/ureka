@@ -6,12 +6,12 @@ import App from './components/App'
 import { BrowserRouter } from 'react-router-dom'
 import { ApolloProvider } from 'react-apollo'
 import type { HtmlConfig } from './components/Html'
-import { createHttpLink } from 'apollo-link-http'
 import { WebSocketLink } from 'apollo-link-ws'
 import { split } from 'apollo-link'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { getMainDefinition } from 'apollo-utilities'
+import { createUploadLink } from 'apollo-upload-client'
 
 const config: HtmlConfig = window.__CONFIG__
 
@@ -22,7 +22,7 @@ function customFetch (uri, options) {
   return fetch(uri, options)
 }
 
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
   uri: `${config.api.http}/graphql`,
   fetch: customFetch
 })

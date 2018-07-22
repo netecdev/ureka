@@ -11,6 +11,7 @@ import { execute, subscribe } from 'graphql'
 import schema from './graphql/schema'
 import cors from '@koa/cors'
 import koaBody from 'koa-bodyparser'
+import Db from './db'
 
 const app = new Koa()
 
@@ -28,7 +29,9 @@ const server = app.listen(port, () => {
 })
 
 async function onConnect (connectionParams): Promise<Context> {
-  return {}
+  return {
+    db: new Db()
+  }
 }
 
 new SubscriptionServer({

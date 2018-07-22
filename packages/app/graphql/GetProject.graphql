@@ -1,0 +1,27 @@
+fragment ReportFragment on Report {
+    id
+    name
+    document {
+        url
+    }
+}
+
+fragment ApplicationFragment on Application {
+    id
+    name
+    type
+}
+
+
+query GetProject($id: ID!) {
+    project(id: $id) {
+        name
+        id
+        applications  {
+            ...ApplicationFragment
+        }
+        reports {
+            ...ReportFragment
+        }
+    }
+}

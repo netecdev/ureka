@@ -1,0 +1,15 @@
+version: '3'
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+  mongo:
+    image: mongo:3.6
+    restart: always
+    volumes:
+      - ./data/db:/data/db
+      - ./docker/initDb.js:/docker-entrypoint-initdb.d/initDb.js
+    ports:
+      - 27017:27017
+    command: --smallfiles --replSet rs0

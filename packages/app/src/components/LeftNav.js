@@ -115,11 +115,13 @@ const SubMenu = styled.ul`
 `
 
 type Nav = {|
-  header: string,
+  header?: string,
   menu: {| icon?: 'document' | 'mobile' | 'desktop' | 'project', title: string, to: string |}[]
 |}
 
-const LeftNav = ({className, children}: { className: string, children: Nav[] }) => (
+type Props = { children?: Nav[], className?: string }
+
+const LeftNav = ({className, children}: Props) => (
   <nav className={className}>
     <LogoContainer>
       <Logo to={'/'}>
@@ -147,13 +149,14 @@ const LeftNav = ({className, children}: { className: string, children: Nav[] }) 
       </Logo>
     </LogoContainer>
     <Menu>
-      {children.map((nav, i) => (
+      {(children || []).map((nav, i) => (
         <MenuItem key={i}>
-          <MenuHeader>
+          {nav.header &&
+          (<MenuHeader>
             <span>
             {nav.header}
             </span>
-          </MenuHeader>
+          </MenuHeader>)}
           <SubMenu>
             {nav.menu.map((menu, i) => (
               <MenuItem key={i}>
@@ -186,7 +189,7 @@ const LeftNav = ({className, children}: { className: string, children: Nav[] }) 
   </nav>
 )
 
-const s: React.ComponentType<{ children: Nav[] }> = styled(LeftNav)`
+const s: React.ComponentType<Props> = styled(LeftNav)`
   background-color: #425261;
   display: flex;
   flex-direction: column;
