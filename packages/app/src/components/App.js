@@ -22,6 +22,7 @@ import DELETE_REPORT from '../../graphql/DeleteReport.graphql'
 import UPLOAD_REPORT from '../../graphql/UploadReport.graphql'
 import type { DocumentNode } from 'graphql'
 import Project from './Project'
+import Report from './Report'
 
 injectGlobal`
   body {
@@ -103,6 +104,7 @@ class AddProject extends React.Component<{ onSuccess?: (id: string) => any }, { 
     )
   }
 }
+
 /*
 const EditApp = ({id, project}) => (
   <Fragment>
@@ -124,7 +126,10 @@ class EditReport extends React.Component<{ id: string, name: string, project: st
   state = {value: this.props.name}
 
   render () {
-    const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECT, variables: {id: this.props.project}}]
+    const refetch: { query: DocumentNode, variables?: {} }[] = [{
+      query: GET_PROJECT,
+      variables: {id: this.props.project}
+    }]
     return (
       <Mutation mutation={UPDATE_REPORT} refetchQueries={refetch}>
         {(addProject: MutationFunction<gt.UpdateReport, gt.UpdateReportVariables>) => {
@@ -166,6 +171,7 @@ class EditReport extends React.Component<{ id: string, name: string, project: st
     )
   }
 }
+
 class EditProject extends React.Component<{ id: string, name: string, onSuccess?: () => any }, { value: string }> {
   state = {value: this.props.name}
 
@@ -403,13 +409,15 @@ class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'cre
                     }
                   ]}
                 </TopNav>
-                <Projects
-                  url={this.props.match.url}
-                  onDeleteProject={p => this.setState({modal: {kind: 'delete', p}})}
-                  onEditProject={p => this.setState({modal: {kind: 'update', p}})}
-                  onAddProject={() => this.setState({modal: {kind: 'create'}})}>
-                  {projects}
-                </Projects>
+                <ContentView>
+                  <Projects
+                    url={this.props.match.url}
+                    onDeleteProject={p => this.setState({modal: {kind: 'delete', p}})}
+                    onEditProject={p => this.setState({modal: {kind: 'update', p}})}
+                    onAddProject={() => this.setState({modal: {kind: 'create'}})}>
+                    {projects}
+                  </Projects>
+                </ContentView>
               </Content>
               {this.state.modal && (
                 <Modal onClose={() => this.setState({modal: null})}>
@@ -468,25 +476,57 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                   }
                 ]}
               </LeftNav>
-              <Content>
-                <TopNav>
-                  {[
-                    {
-                      type: 'Project',
-                      title: project.name,
-                      to: `${this.props.match.url}`
-                    }
-                  ]}
-                </TopNav>
-                <Project
-                  onEditReport={report => this.setState({modal: {kind: 'editReport', report}})}
-                  onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
-                  onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
-                  onUploadApplication={() => this.setState({modal: {kind: 'uploadApplication'}})}
-                >
-                  {project}
-                </Project>
-              </Content>
+              <Switch>
+                <Route path={`${this.props.match.path}/reports/:report`} render={({match: {params, url}}) => {
+                  const report = project.reports.find(({id}) => id === params.report)
+                  if (!report) return null
+                  return (
+                    <Content>
+                      <TopNav>
+                        {[
+                          {
+                            type: 'Project',
+                            title: project.name,
+                            to: `${this.props.match.url}`
+                          },
+                          {
+                            type: 'Report',
+                            title: report.name,
+                            to: `${url}`
+                          }
+                        ]}
+                      </TopNav>
+                      <ContentView>
+                        <Report url={report.document.url} />
+                      </ContentView>
+                    </Content>
+                  )
+                }} />
+                <Route render={() => (
+                  <Content>
+                    <TopNav>
+                      {[
+                        {
+                          type: 'Project',
+                          title: project.name,
+                          to: `${this.props.match.url}`
+                        }
+                      ]}
+                    </TopNav>
+                    <ContentView>
+                      <Project
+                        onEditReport={report => this.setState({modal: {kind: 'editReport', report}})}
+                        onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
+                        onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
+                        onUploadApplication={() => this.setState({modal: {kind: 'uploadApplication'}})}
+                      >
+                        {project}
+                      </Project>
+                    </ContentView>
+                  </Content>
+                )} />
+              </Switch>
+
               {this.state.modal && (
                 <Modal onClose={() => this.setState({modal: null})}>
                   {this.state.modal && this.state.modal.kind === 'uploadApplication' &&

@@ -12,7 +12,7 @@ const router = new KoaRouter()
 
 async function ctxToContext (ctx): Promise<Context> {
   return {
-    db: new Db()
+    db: ctx.db
   }
 }
 

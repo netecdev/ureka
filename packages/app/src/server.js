@@ -12,6 +12,8 @@ import schema from './graphql/schema'
 import cors from '@koa/cors'
 import koaBody from 'koa-bodyparser'
 import Db from './db'
+import files from './middleware/files'
+import db from './middleware/db'
 
 const app = new Koa()
 
@@ -19,7 +21,9 @@ app.use(serve(path.join('dist', 'client'), {maxage: 1000 * 60 * 60 * 24})) // Ca
 app.use(serve('public', {maxage: 1000 * 60 * 60 * 24 * 7})) // Cache 1w
 app.use(cors())
 app.use(koaBody())
+app.use(db())
 app.use(graphql())
+app.use(files())
 app.use(appM())
 
 const port = config.get('port')

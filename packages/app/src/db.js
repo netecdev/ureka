@@ -27,7 +27,6 @@ export type Application = {|
 export type Report = {|
   _id: mongo.ObjectID,
   name: string,
-  document: mongo.ObjectID,
   project: mongo.ObjectID,
   created: Date
 |}
@@ -57,9 +56,27 @@ export type PageInfo = {|
 
 export type Cursor = number
 
-type Image = {| _id: mongo.ObjectID, kind: 'image', height: number, width: number, created: Date, data: Buffer, publicId: string |}
+type Image = {|
+  _id: mongo.ObjectID,
+  kind: 'image',
+  height: number,
+  width: number,
+  created: Date,
+  data: Buffer,
+  publicId: string,
+  application: mongo.ObjectID,
+  project: mongo.ObjectID
+|}
 
-type Pdf = {| _id: mongo.ObjectID, kind: 'pdf', created: Date, data: Buffer, publicId: string |}
+type Pdf = {|
+  _id: mongo.ObjectID,
+  kind: 'pdf',
+  created: Date,
+  data: Buffer,
+  publicId: string,
+  report: mongo.ObjectID,
+  project: mongo.ObjectID
+|}
 
 export type File =
   | Image
@@ -80,6 +97,15 @@ const collectionDefinitions: {|
       await col.createIndex({
         publicId: 1
       })
+      await col.createIndex({
+        report: 1
+      })
+      await col.createIndex({
+        project: 1
+      })
+      await col.createIndex({
+        application: 1
+      })
     }
   ],
   applications: [
@@ -89,7 +115,12 @@ const collectionDefinitions: {|
     (db, n) => db.createCollection(n)
   ],
   files: [
-    (db, n) => db.createCollection(n)
+    async (db, n) => {
+      const col = await db.createCollection(n)
+      col.createIndex({
+        publicId: 1
+      })
+    }
   ],
   annotations: [
     (db, n) => db.createCollection(n)
@@ -203,6 +234,19 @@ export default class Db {
       .findOne({_id: id})
   }
 
+  async fileByReport (report: mongo.ObjectID): Promise<?File> {
+    return (await this._collectionsP)
+      .files
+      .findOne({report})
+  }
+
+  async fileByPublicId (id: string): Promise<?File> {
+    return (await this._collectionsP)
+      .files
+      .findOne({publicId: id})
+
+  }
+
   async createProject (o: WithoutId<Project>): Promise<mongo.ObjectID> {
     const {insertedId} = await (await this._collectionsP).projects.insertOne({...o, created: new Date()})
     return insertedId
@@ -229,10 +273,10 @@ export default class Db {
       .findOne({publicId})
   }
 
-  async deleteProjectByPublicId (publicId: string): Promise<{| deleted: number |}> {
+  async deleteProject (id: mongo.ObjectID): Promise<{| deleted: number |}> {
     const {deletedCount} = await (await this._collectionsP)
       .projects
-      .deleteOne({publicId})
+      .deleteOne({_id: id})
     return {deleted: deletedCount}
   }
 
@@ -240,6 +284,12 @@ export default class Db {
     const {deletedCount} = await (await this._collectionsP)
       .reports
       .deleteOne({_id: id})
+    return {deleted: deletedCount}
+  }
+  async deleteReportByProject (project: mongo.ObjectID): Promise<{| deleted: number |}> {
+    const {deletedCount} = await (await this._collectionsP)
+      .reports
+      .deleteMany({project})
     return {deleted: deletedCount}
   }
 
@@ -267,12 +317,20 @@ export default class Db {
     return {modified: modifiedCount}
   }
 
-  async deleteFile (id: mongo.ObjectID) {
+  async deleteFileByReport (report: mongo.ObjectID) {
     const {deletedCount} = await (await this._collectionsP)
       .files
-      .deleteOne({_id: id})
+      .deleteMany({report})
     return {deleted: deletedCount}
   }
+
+  async deleteFileByProject (project: mongo.ObjectID) {
+    const {deletedCount} = await (await this._collectionsP)
+      .files
+      .deleteMany({project})
+    return {deleted: deletedCount}
+  }
+
   async applicationsForProject (project: mongo.ObjectID): Promise<Application[]> {
     return (await this._collectionsP)
       .applications

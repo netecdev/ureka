@@ -197,6 +197,7 @@ declare module 'mongodb' {
     aggregate<TDocRes> (pipeline: Pipeline<TDoc, TDocRes>): Cursor<TDocRes>;
     updateOne (filter: Query, update: Update<TDoc>): Promise<{| acknowledged: boolean, matchedCount: number, modifiedCount: number |}>;
     deleteOne (filter: Query): Promise<{| acknowledged: boolean, deletedCount: number |}>;
+    deleteMany (filter: Query): Promise<{| acknowledged: boolean, deletedCount: number |}>;
     insertOne (o: $Diff<TDoc, { _id: ObjectID }> | TDoc): Promise<{| insertedId: ObjectID, acknowledged: boolean |}>;
     watch<TDocRes> (pipeline?: Pipeline<TDoc, TDocRes>, options?: {| fullDocument?: 'default' |}): ChangeStream<ChangeStreamDocument<TDocRes>>;
     watch<TDocRes> (pipeline?: Pipeline<TDoc, TDocRes>, options: {| fullDocument?: 'updateLookup' |}): ChangeStream<ChangeStreamDocumentUpdateLookup<TDocRes>>;

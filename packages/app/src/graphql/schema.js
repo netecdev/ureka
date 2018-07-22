@@ -121,15 +121,16 @@ const Mutation = {
     }
     const data = await toBuffer(stream)
     const publicId = await randomId()
-    const id = await db.createPdf({
-      kind: 'pdf',
-      publicId,
-      data
-    })
     const reportId = await db.createReport({
       name: args.name,
-      document: id,
       project: project._id
+    })
+    await db.createPdf({
+      kind: 'pdf',
+      publicId,
+      report: reportId,
+      project: project._id,
+      data
     })
     const report: ?DB.Report = await db.report(reportId)
     if (!report) {
@@ -138,21 +139,21 @@ const Mutation = {
     return report
   },
   async deleteProject (i, {id}, {db}) {
-    return db.deleteProjectByPublicId(id)
+    const project = await db.projectByPublicId(id)
+    if (!project) {
+      return {deleted: 0}
+    }
+    await db.deleteFileByProject(project._id)
+    await db.deleteReportByProject(project._id)
+    return await db.deleteProject(project._id)
   },
   async deleteReport (_, {id}, {db}) {
     const i = db.id(id)
     if (!i) {
       return {deleted: 0}
     }
-    const report = await db.report(i)
-    if (!report) {
-      return {deleted: 0}
-    }
     const res = await db.deleteReport(i)
-    if (res.deleted) {
-      await db.deleteFile(report.document)
-    }
+    await db.deleteFileByReport(i)
     return res
   },
   async updateProject (_, {id, name}, {db}) {
@@ -199,7 +200,7 @@ const Report = {
     return report._id.toString()
   },
   async document(report, {}, {db}) {
-    const doc = await db.file(report.document)
+    const doc = await db.fileByReport(report._id)
     if (!doc) {
       throw new Error('Internal server error')
     }

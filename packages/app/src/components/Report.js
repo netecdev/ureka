@@ -49,8 +49,8 @@ class Pdf extends React.Component<{| file: string |}, { loading: boolean }> {
   }
 }
 
-export default () => (
+export default ({url}: { url: string }) => (
   <Container>
-    <Pdf file={'/pdf.pdf'} />
+    <Pdf file={url} />
   </Container>
 )
