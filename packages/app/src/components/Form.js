@@ -16,14 +16,12 @@ export const Submit = styled((props) => (
   <SubmitStyle {...props} type={'submit'} />
 ))``
 
-
 export const FileUpload = styled(Input).attrs({type: 'file'})`
 `
 
 export const TextField = styled(Input).attrs(({type: 'text'}))`
   font-family: Roboto, sans-serif;
-  padding: 0 0.1em;
-  max-width: 20em;
+  padding: 0 0.5em;
   width: 100%;
   border: 0.05em solid #d8d8d8;
 `

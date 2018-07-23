@@ -23,6 +23,7 @@ import UPLOAD_REPORT from '../../graphql/UploadReport.graphql'
 import type { DocumentNode } from 'graphql'
 import Project from './Project'
 import Report from './Report'
+import { DesktopIcon, Icon, MobileIcon } from './Icons'
 
 injectGlobal`
   body {
@@ -301,6 +302,37 @@ const DeleteReport = ({id, name, onClose, project}) => (
   </Mutation>
 )
 
+const Selectable = styled.div`
+  ${Icon} {
+    height: 1em;
+    width: 1em;
+    margin-right: 0.5em;
+    fill: ${({selected}) => selected ? '#10171d' : '#7a7a7a'};
+  }
+  background-color: ${({selected}) => selected ? '#e0e0e0' : '#fff'};
+  transition: 0.1s background-color;
+  border: 0.05em solid #d8d8d8;
+  padding: 0.5em;
+  box-sizing: content-box;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+`
+
+const Selectables = styled.div`
+  ${Selectable} {
+  }
+  display: flex;
+`
+
+const FauxLabel = styled.div`
+    line-height: 1.5em;
+    padding-top: 0.5em;
+    font-weight: 700;
+    color: #363636;
+    display: block;
+`
+
 const UploadApp = ({project}) => (
   <Fragment>
     <h1>
@@ -314,6 +346,19 @@ const UploadApp = ({project}) => (
         Name
         <TextField placeholder={'Fancy application'} />
       </Label>
+      <FauxLabel>
+        Type
+        <Selectables>
+          <Selectable selected>
+            <DesktopIcon />
+            Desktop
+          </Selectable>
+          <Selectable>
+            <MobileIcon />
+            Mobile
+          </Selectable>
+        </Selectables>
+      </FauxLabel>
       <FileUpload />
       <Submit value={'Upload'} />
     </Form>
