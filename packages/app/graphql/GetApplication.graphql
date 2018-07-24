@@ -1,6 +1,7 @@
-query GetApplication($id: ID!) {
-    application(id: $id) {
+query GetApplication($project: ID!, $id: ID!) {
+    application(project: $project id: $id) {
         annotations {
+            id
             x
             y
             width

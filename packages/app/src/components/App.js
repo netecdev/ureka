@@ -634,7 +634,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         ]}
                       </TopNav>
                       <ContentView>
-                        <Screenshot app={app} />
+                        <Screenshot app={app} project={project.id} />
                       </ContentView>
                     </Content>
                   )

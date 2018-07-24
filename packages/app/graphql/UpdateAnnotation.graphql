@@ -7,5 +7,6 @@ mutation UpdateAnnotation ($annotation: ID!, $x: Int, $y: Int, $width: Int, $hei
         height
         description
         type
+        id
     }
 }

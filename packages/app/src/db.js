@@ -31,10 +31,10 @@ export type Report = {|
 |}
 
 export type AnnotationType =
-  | 'design'
-  | 'functionality'
-  | 'language'
-  | 'usability'
+  | 'DESIGN'
+  | 'FUNCTIONALITY'
+  | 'LANGUAGE'
+  | 'USABILITY'
 
 export type Annotation = {|
   _id: mongo.ObjectID,
@@ -234,6 +234,12 @@ export default class Db {
       .findOne({_id: id})
   }
 
+  async annotation (id: mongo.ObjectID): Promise<?Annotation> {
+    return (await this._collectionsP)
+      .annotations
+      .findOne({_id: id})
+  }
+
   async file (id: mongo.ObjectID): Promise<?File> {
     return (await this._collectionsP)
       .files
@@ -259,6 +265,13 @@ export default class Db {
 
   }
 
+  async annotationsByApp (application: mongo.ObjectID): Promise<Annotation[]> {
+    return (await this._collectionsP)
+      .annotations
+      .find({application})
+      .toArray()
+  }
+
   async createProject (o: WithoutId<Project>): Promise<mongo.ObjectID> {
     const {insertedId} = await (await this._collectionsP).projects.insertOne({...o, created: new Date()})
     return insertedId
@@ -281,6 +294,11 @@ export default class Db {
 
   async createApp (o: WithoutId<Application>): Promise<mongo.ObjectID> {
     const {insertedId} = await (await this._collectionsP).applications.insertOne({...o, created: new Date()})
+    return insertedId
+  }
+
+  async createAnnotation (o: WithoutId<Annotation>): Promise<mongo.ObjectID> {
+    const {insertedId} = await (await this._collectionsP).annotations.insertOne({...o, created: new Date()})
     return insertedId
   }
 
@@ -350,9 +368,22 @@ export default class Db {
       )
     return {modified: modifiedCount}
   }
+
   async updateApplication (id: mongo.ObjectID, o: $Shape<Application>): Promise<{| modified: number |}> {
     const {modifiedCount} = await (await this._collectionsP)
       .applications
+      .updateOne(
+        {_id: id},
+        {
+          $set: o
+        }
+      )
+    return {modified: modifiedCount}
+  }
+
+  async updateAnnotation (id: mongo.ObjectID, o: $Shape<Annotation>): Promise<{| modified: number |}> {
+    const {modifiedCount} = await (await this._collectionsP)
+      .annotations
       .updateOne(
         {_id: id},
         {

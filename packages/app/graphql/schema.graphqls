@@ -135,7 +135,7 @@ type Query {
         after: Cursor
     ): ProjectConnection!
 
-    application(project: ID, id: ID): Application
+    application(project: ID!, id: ID!): Application
 }
 
 type DeleteResult {

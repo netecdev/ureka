@@ -53,6 +53,9 @@ type Resolvers = {|
   PageInfo: {|
     hasPreviousPage: Resolver<void, {}, boolean>
   |},
+  Annotation: {|
+    id: Resolver<DB.Annotation, {}, string>,
+  |},
   Query: {|
     projects: Resolver<void, { first: number, after?: DB.Cursor }, DB.PaginationResult<DB.Project>>,
     project: Resolver<void, { id: string }, ?DB.Project>,
@@ -62,12 +65,15 @@ type Resolvers = {|
     createProject: Resolver<void, { name: string }, DB.Project>,
     updateProject: Resolver<void, { id: string, name?: string }, DB.Project>,
     deleteProject: Resolver<void, { id: string }, {| deleted: number |}>,
-    createApplication: Resolver<void, { project: string, name: string, type: 'MOBILE' | 'DESKTOP', file: Promise<Upload> }, DB.Application>,
+    createApplication: Resolver<void, { project: string, name: string, type: DB.ApplicationType, file: Promise<Upload> }, DB.Application>,
     deleteApplication: Resolver<void, { id: string }, {| deleted: number |}>,
-    updateApplication: Resolver<void, { id: string, name?: string, type?: 'MOBILE' | 'DESKTOP' }, DB.Application>,
+    updateApplication: Resolver<void, { id: string, name?: string, type?: DB.ApplicationType }, DB.Application>,
     createReport: Resolver<void, { project: string, name: string, file: Promise<Upload> }, DB.Report>,
     deleteReport: Resolver<void, { id: string }, {| deleted: number |}>,
-    updateReport: Resolver<void, { id: string, name?: string }, DB.Report>
+    updateReport: Resolver<void, { id: string, name?: string }, DB.Report>,
+    createAnnotation: Resolver<void, { application: string, x: number, y: number, width: number, height: number, description: string, type: DB.AnnotationType }, DB.Annotation>,
+    deleteAnnotation: Resolver<void, { id: string }, {| deleted: number |}>,
+    updateAnnotation: Resolver<void, { id: string, x: number, y: number, width?: number, height?: number, description?: string, type?: DB.AnnotationType }, DB.Annotation>
   |},
   Project: {|
     id: Resolver<DB.Project, {}, string>,
@@ -80,12 +86,12 @@ type Resolvers = {|
   |},
   Application: {|
     id: Resolver<DB.Application, {}, string>,
-    screenshot: Resolver<DB.Application, {}, DB.File>
+    screenshot: Resolver<DB.Application, {}, DB.File>,
+    annotations: Resolver<DB.Application, {}, DB.Annotation[]>,
   |},
   Cursor: GraphQLScalarType,
   Upload: GraphQLScalarType
 |}
-
 
 const Query = {
   async application (info, {id, project}, {db}) {
@@ -184,7 +190,7 @@ const Mutation = {
       project: project._id
     })
     const publicId = await randomId()
-    const image = await db.createImage({
+    await db.createImage({
       data,
       application: appId,
       height,
@@ -199,6 +205,20 @@ const Mutation = {
       throw new Error('Internal error')
     }
     return app
+  },
+  async createAnnotation (i, args, {db}) {
+    const id = db.id(args.application)
+    const app = id && await db.application(id)
+    if (!app) {
+      throw new Error('App not found')
+    }
+    const {type, description, x, y, width, height} = args
+    const annId = await db.createAnnotation({type, description, x, y, width, height, application: app._id})
+    const ann = await db.annotation(annId)
+    if (!ann) {
+      throw new Error('Internal error')
+    }
+    return ann
   },
   async deleteProject (i, {id}, {db}) {
     const project = await db.projectByPublicId(id)
@@ -267,6 +287,34 @@ const Mutation = {
     const updated = await db.application(application._id)
     if (!updated) throw new Error('Internal error')
     return updated
+  },
+  async updateAnnotation (_, args, {db}) {
+    const i = db.id(args.id)
+    const application = i && await db.annotation(i)
+    if (!application) throw new Error('Annotation not found')
+    const update = {}
+    if (args.x !== undefined) {
+      update.x = args.x
+    }
+    if (args.y !== undefined) {
+      update.y = args.y
+    }
+    if (args.width !== undefined) {
+      update.width = args.width
+    }
+    if (args.height !== undefined) {
+      update.height = args.height
+    }
+    if (args.description!== undefined) {
+      update.description= args.description
+    }
+    if (args.type !== undefined) {
+      update.type = args.type
+    }
+    await db.updateAnnotation(application._id, update)
+    const updated = await db.annotation(application._id)
+    if (!updated) throw new Error('Internal error')
+    return updated
   }
 }
 
@@ -294,6 +342,11 @@ const Report = {
     return doc
   }
 }
+const Annotation = {
+  id (annotation) {
+    return annotation._id.toString()
+  }
+}
 
 const Application = {
   id (report) {
@@ -305,6 +358,9 @@ const Application = {
       throw new Error('Internal server error')
     }
     return doc
+  },
+  async annotations (app, {}, {db}) {
+    return db.annotationsByApp(app._id)
   }
 }
 
@@ -329,6 +385,7 @@ const resolvers: Resolvers = {
   Mutation,
   Project,
   Application,
+  Annotation,
   Report,
   Upload: GraphQLUpload,
   Cursor: new GraphQLScalarType({
