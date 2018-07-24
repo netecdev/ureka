@@ -213,7 +213,16 @@ const Mutation = {
       throw new Error('App not found')
     }
     const {type, description, x, y, width, height} = args
-    const annId = await db.createAnnotation({type, description, x, y, width, height, application: app._id})
+    const annId = await db.createAnnotation({
+      type,
+      description,
+      x,
+      y,
+      width,
+      height,
+      application: app._id,
+      project: app.project
+    })
     const ann = await db.annotation(annId)
     if (!ann) {
       throw new Error('Internal error')
@@ -227,6 +236,7 @@ const Mutation = {
     }
     await db.deleteFileByProject(project._id)
     await db.deleteReportByProject(project._id)
+    // TODO delete annotations
     return await db.deleteProject(project._id)
   },
   async deleteReport (_, {id}, {db}) {
@@ -245,6 +255,7 @@ const Mutation = {
     }
     const res = await db.deleteApplication(i)
     await db.deleteFileByApplication(i)
+    // TODO delete annotations
     return res
   },
   async updateProject (_, {id, name}, {db}) {
@@ -305,8 +316,8 @@ const Mutation = {
     if (args.height !== undefined) {
       update.height = args.height
     }
-    if (args.description!== undefined) {
-      update.description= args.description
+    if (args.description !== undefined) {
+      update.description = args.description
     }
     if (args.type !== undefined) {
       update.type = args.type

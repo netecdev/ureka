@@ -45,6 +45,7 @@ export type Annotation = {|
   description: string,
   type: AnnotationType,
   application: mongo.ObjectID,
+  project: mongo.ObjectID,
   created: Date
 |}
 
