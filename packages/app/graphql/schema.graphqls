@@ -36,6 +36,7 @@ enum AnnotationType {
 # An annotation on a image. This is basically a rectangle with
 # some description and type.
 type Annotation {
+    id: ID!
     # The x position of the annotation
     x: Int!
     # The y position of the annotation
@@ -133,6 +134,8 @@ type Query {
         # An optional cursor.
         after: Cursor
     ): ProjectConnection!
+
+    application(project: ID, id: ID): Application
 }
 
 type DeleteResult {
@@ -143,12 +146,12 @@ type Mutation {
     createProject(name: String!): Project!
     createApplication(project: ID!, name: String!, type: ApplicationType!, file: Upload!): Application!
     createReport(project: ID!, name: String!, file: Upload!): Report!
-    createAnnotation(application: ID, x: Int!, y: Int!, description: String!, type: AnnotationType!): Annotation!
+    createAnnotation(application: ID!, x: Int!, y: Int!, height: Int!, width: Int!, description: String!, type: AnnotationType!): Annotation!
 
     updateReport(id: ID!, name: String): Report!
     updateApplication(id: ID!, name: String, type: ApplicationType): Application!
     updateProject(id: ID!, name: String): Project!
-    updateAnnotation(id: ID!, x: Int, y: Int, description: String, type: AnnotationType): Annotation!
+    updateAnnotation(id: ID!, x: Int, y: Int, width: Int, height: Int, description: String, type: AnnotationType): Annotation!
 
     deleteReport(id: ID!): DeleteResult!
     deleteApplication(id: ID!): DeleteResult!

@@ -9,6 +9,7 @@ import base64url from 'urlsafe-base64'
 import { GraphQLScalarType } from 'graphql'
 import { Kind } from 'graphql/language'
 import { GraphQLUpload } from 'apollo-upload-server'
+import sizeOf from 'image-size'
 
 export type Context = {
   db: Db
@@ -45,22 +46,28 @@ type Resolvers = {|
   Pdf: {|
     url: Resolver<DB.File, {}, string>
   |},
+  Image: {|
+    url: Resolver<DB.File, {}, string>
+  |},
   File: InterfaceResolver<'Image' | 'Pdf'>,
   PageInfo: {|
     hasPreviousPage: Resolver<void, {}, boolean>
   |},
   Query: {|
     projects: Resolver<void, { first: number, after?: DB.Cursor }, DB.PaginationResult<DB.Project>>,
-    project: Resolver<void, { id: string }, ?DB.Project>
+    project: Resolver<void, { id: string }, ?DB.Project>,
+    application: Resolver<void, { id: string, project: string }, ?DB.Application>
   |},
   Mutation: {|
     createProject: Resolver<void, { name: string }, DB.Project>,
     updateProject: Resolver<void, { id: string, name?: string }, DB.Project>,
     deleteProject: Resolver<void, { id: string }, {| deleted: number |}>,
-    deleteReport: Resolver<void, { id: string }, {| deleted: number |}>,
-    // createApplication: Resolver<void, { project: string, name: string, type: 'MOBILE' | 'DESKTOP', file: Promise<Upload> }, DB.Application>,
+    createApplication: Resolver<void, { project: string, name: string, type: 'MOBILE' | 'DESKTOP', file: Promise<Upload> }, DB.Application>,
+    deleteApplication: Resolver<void, { id: string }, {| deleted: number |}>,
+    updateApplication: Resolver<void, { id: string, name?: string, type?: 'MOBILE' | 'DESKTOP' }, DB.Application>,
     createReport: Resolver<void, { project: string, name: string, file: Promise<Upload> }, DB.Report>,
-    updateReport: Resolver<void, { id: string, name: string }, DB.Report>
+    deleteReport: Resolver<void, { id: string }, {| deleted: number |}>,
+    updateReport: Resolver<void, { id: string, name?: string }, DB.Report>
   |},
   Project: {|
     id: Resolver<DB.Project, {}, string>,
@@ -71,11 +78,27 @@ type Resolvers = {|
     id: Resolver<DB.Report, {}, string>,
     document: Resolver<DB.Report, {}, DB.File>
   |},
+  Application: {|
+    id: Resolver<DB.Application, {}, string>,
+    screenshot: Resolver<DB.Application, {}, DB.File>
+  |},
   Cursor: GraphQLScalarType,
   Upload: GraphQLScalarType
 |}
 
+
 const Query = {
+  async application (info, {id, project}, {db}) {
+    const p = await db.projectByPublicId(project)
+    if (!p) {
+      return null
+    }
+    const i = db.id(id)
+    if (!i) {
+      return null
+    }
+    return db.applicationByProjectAndId(p._id, i)
+  },
   async project (info, {id}, {db}) {
     return db.projectByPublicId(id)
   },
@@ -96,8 +119,7 @@ const PageInfo = {
   }
 }
 
-
-async function randomId(): Promise<string> {
+async function randomId (): Promise<string> {
   const randomness = await randomBytes(32)
   return base64url.encode(randomness)
 }
@@ -138,6 +160,46 @@ const Mutation = {
     }
     return report
   },
+  async createApplication (i, args, {db}) {
+    const {stream} = await args.file
+    const project = await db.projectByPublicId(args.project)
+    if (!project) {
+      throw new Error('Project not found')
+    }
+    const data = await toBuffer(stream)
+    let dimensions
+    try {
+      dimensions = sizeOf(data)
+    } catch (err) {
+      console.warn(err)
+      throw new Error('Invalid file.')
+    }
+    const {height, width, type} = dimensions
+    if (type !== 'png' && type !== 'jpg') {
+      throw new Error(`Unsupported file type "${dimensions.type}".`)
+    }
+    const appId = await db.createApp({
+      name: args.name,
+      type: args.type,
+      project: project._id
+    })
+    const publicId = await randomId()
+    const image = await db.createImage({
+      data,
+      application: appId,
+      height,
+      width,
+      kind: 'image',
+      project: project._id,
+      type,
+      publicId,
+    })
+    const app: ?DB.Application = await db.application(appId)
+    if (!app) {
+      throw new Error('Internal error')
+    }
+    return app
+  },
   async deleteProject (i, {id}, {db}) {
     const project = await db.projectByPublicId(id)
     if (!project) {
@@ -154,6 +216,15 @@ const Mutation = {
     }
     const res = await db.deleteReport(i)
     await db.deleteFileByReport(i)
+    return res
+  },
+  async deleteApplication (_, {id}, {db}) {
+    const i = db.id(id)
+    if (!i) {
+      return {deleted: 0}
+    }
+    const res = await db.deleteApplication(i)
+    await db.deleteFileByApplication(i)
     return res
   },
   async updateProject (_, {id, name}, {db}) {
@@ -180,6 +251,22 @@ const Mutation = {
     const updated = await db.report(report._id)
     if (!updated) throw new Error('Internal error')
     return updated
+  },
+  async updateApplication (_, {id, name, type}, {db}) {
+    const i = db.id(id)
+    const application = i && await db.application(i)
+    if (!application) throw new Error('Application not found')
+    const update = {}
+    if (name) {
+      update.name = name
+    }
+    if (type) {
+      update.type = type
+    }
+    await db.updateApplication(application._id, update)
+    const updated = await db.application(application._id)
+    if (!updated) throw new Error('Internal error')
+    return updated
   }
 }
 
@@ -199,8 +286,21 @@ const Report = {
   id (report) {
     return report._id.toString()
   },
-  async document(report, {}, {db}) {
+  async document (report, {}, {db}) {
     const doc = await db.fileByReport(report._id)
+    if (!doc) {
+      throw new Error('Internal server error')
+    }
+    return doc
+  }
+}
+
+const Application = {
+  id (report) {
+    return report._id.toString()
+  },
+  async screenshot (app, {}, {db}) {
+    const doc = await db.fileByApp(app._id)
     if (!doc) {
       throw new Error('Internal server error')
     }
@@ -214,13 +314,21 @@ const Pdf = {
   }
 }
 
+const Image = {
+  url (file) {
+    return `/files/${file.publicId}`
+  }
+}
+
 const resolvers: Resolvers = {
   File,
   Query,
   Pdf,
+  Image,
   PageInfo,
   Mutation,
   Project,
+  Application,
   Report,
   Upload: GraphQLUpload,
   Cursor: new GraphQLScalarType({

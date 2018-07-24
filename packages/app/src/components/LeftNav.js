@@ -102,7 +102,11 @@ const MenuItem = styled.li`
   font-family: "Roboto Condensed", sans-serif;
   font-weight: 400;
   padding: 0.5em 0 ;
+  overflow: hidden;
   > ${MenuLink} {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
     text-decoration: none;
     color: #ffffff;
   }

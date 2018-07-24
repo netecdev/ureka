@@ -1,0 +1,11 @@
+mutation UpdateAnnotation ($annotation: ID!, $x: Int, $y: Int, $width: Int, $height: Int, $description: String, $type: AnnotationType){
+    updateAnnotation(id: $annotation, x: $x, y: $y, width: $width, height: $height, description: $description, type: $type) {
+        description
+        x
+        y
+        width
+        height
+        description
+        type
+    }
+}

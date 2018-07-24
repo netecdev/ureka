@@ -10,6 +10,9 @@ const Header = styled.h1`
   font-weight: 400;
   color: #c5c5c5;
   transition: 0.1s, color;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `
 
 const Type = styled.div`
@@ -37,6 +40,7 @@ const BreadCrumb = styled(NavLink)`
   float: left;
   display: block;
   padding: 1em 2em;
+  max-width: 20em;
   height: calc(100% - 2em);
   position: relative;
   text-decoration: none;

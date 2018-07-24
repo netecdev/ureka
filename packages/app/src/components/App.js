@@ -6,7 +6,7 @@ import TopNav from './TopNav'
 import { Redirect, Route, Switch } from 'react-router'
 import Projects from './Projects'
 import Modal, { ModalActions } from './Modal'
-import { FileUpload, Label, Submit, TextField } from './Form'
+import { FauxLabel, FileUpload, FormError, Label, Selectable, Selectables, Submit, TextField } from './Form'
 import Form from './Form'
 import Button from './Button'
 import { Mutation, type MutationFunction, Query, type QueryRenderProps } from 'react-apollo'
@@ -17,13 +17,16 @@ import ADD_PROJECT from '../../graphql/AddProject.graphql'
 import UPDATE_PROJECT from '../../graphql/UpdateProject.graphql'
 import DELETE_PROJECT from '../../graphql/DeleteProject.graphql'
 import UPDATE_REPORT from '../../graphql/UpdateReport.graphql'
+import UPDATE_APPLICATION from '../../graphql/UpdateApplication.graphql'
 import UPLOAD_APP from '../../graphql/UploadApp.graphql'
 import DELETE_REPORT from '../../graphql/DeleteReport.graphql'
 import UPLOAD_REPORT from '../../graphql/UploadReport.graphql'
+import DELETE_APPLICATION from '../../graphql/DeleteApplication.graphql'
 import type { DocumentNode } from 'graphql'
 import Project from './Project'
 import Report from './Report'
-import { DesktopIcon, Icon, MobileIcon } from './Icons'
+import { DesktopIcon, MobileIcon } from './Icons'
+import Screenshot from './Screenshot'
 
 injectGlobal`
   body {
@@ -57,7 +60,8 @@ const Container = styled.div`
   height: 100vh;
 
   > ${LeftNav} {
-    flex-basis: 16em;
+    width: 18em;
+    flex-basis: 18em;
     flex-grow: 0;
     flex-shrink: 0;
   }
@@ -70,13 +74,14 @@ class AddProject extends React.Component<{ onSuccess?: (id: string) => any }, { 
     const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECTS}]
     return (
       <Mutation mutation={ADD_PROJECT} refetchQueries={refetch}>
-        {(addProject: MutationFunction<gt.AddProject, gt.AddProjectVariables>) => {
+        {(addProject: MutationFunction<gt.AddProject, gt.AddProjectVariables>, {error}) => {
           return (
             <Fragment>
               <h1>Add project</h1>
               <p>
                 Create a new project.
               </p>
+              {error && <FormError>{error}</FormError>}
               <Form onSubmit={async (e) => {
                 e.preventDefault()
                 if (!this.state.value) {
@@ -106,23 +111,77 @@ class AddProject extends React.Component<{ onSuccess?: (id: string) => any }, { 
   }
 }
 
-/*
-const EditApp = ({id, project}) => (
-  <Fragment>
-    <h1>Edit application</h1>
-    <p>
-      Update the application information.
-    </p>
-    <Form>
-      <Label>
-        Application name
-        <TextField defaultValue={data.projects[project].apps[id].title} />
-      </Label>
-      <Submit value={'Change'} />
-    </Form>
-  </Fragment>
-)
-*/
+
+class EditApplication extends React.Component<{ id: string, type: gt.ApplicationType, name: string, project: string, onClose: () => any }, { value: string, type: gt.ApplicationType }> {
+  state = {value: this.props.name, type: this.props.type}
+  refetch: { query: DocumentNode, variables?: {} }[] = [{
+    query: GET_PROJECT,
+    variables: {id: this.props.project}
+  }]
+  render () {
+
+    return (
+      <Mutation mutation={UPDATE_APPLICATION} refetchQueries={this.refetch}>
+        {(addProject: MutationFunction<gt.UpdateApplication, gt.UpdateApplicationVariables>, {error}) => {
+          return (
+            <Fragment>
+              <h1>Edit application</h1>
+              <p>
+                Update the application information.
+              </p>
+              {error && <FormError>{error}</FormError>}
+              <Form onSubmit={async (e) => {
+                e.preventDefault()
+                if (!this.state.value) {
+                  return
+                }
+                const res: { data?: gt.UpdateApplication } | void = await addProject({
+                  variables: {
+                    id: this.props.id,
+                    name: this.state.value,
+                    type: this.state.type
+                  }
+                })
+                this.setState({value: ''})
+                if (res && res.data) {
+                  this.props.onClose()
+                }
+
+              }}>
+                <Label>
+                  Application name
+                  <TextField
+                    value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <FauxLabel>
+                  Type
+                  <Selectables>
+                    <Selectable
+                      radio selected={this.state.type === 'DESKTOP'}
+                      onClick={() => this.setState({type: 'DESKTOP'})}>
+                      <DesktopIcon />
+                      Desktop
+                    </Selectable>
+                    <Selectable
+                      radio selected={this.state.type === 'MOBILE'}
+                      onClick={() => this.setState({type: 'MOBILE'})}>
+                      <MobileIcon />
+                      Mobile
+                    </Selectable>
+                  </Selectables>
+                </FauxLabel>
+                <Submit value={'Change'} disabled={!this.state.value} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
+  }
+}
+
+
 class EditReport extends React.Component<{ id: string, name: string, project: string, onClose: () => any }, { value: string }> {
   state = {value: this.props.name}
 
@@ -133,13 +192,14 @@ class EditReport extends React.Component<{ id: string, name: string, project: st
     }]
     return (
       <Mutation mutation={UPDATE_REPORT} refetchQueries={refetch}>
-        {(addProject: MutationFunction<gt.UpdateReport, gt.UpdateReportVariables>) => {
+        {(addProject: MutationFunction<gt.UpdateReport, gt.UpdateReportVariables>, {error}) => {
           return (
             <Fragment>
               <h1>Edit report</h1>
               <p>
                 Update the report information.
               </p>
+              {error && <FormError>{error}</FormError>}
               <Form onSubmit={async (e) => {
                 e.preventDefault()
                 if (!this.state.value) {
@@ -180,13 +240,14 @@ class EditProject extends React.Component<{ id: string, name: string, onSuccess?
     const refetch: { query: DocumentNode, variables?: {} }[] = [{query: GET_PROJECTS}]
     return (
       <Mutation mutation={UPDATE_PROJECT} refetchQueries={refetch}>
-        {(addProject: MutationFunction<gt.UpdateProject, gt.UpdateProjectVariables>) => {
+        {(addProject: MutationFunction<gt.UpdateProject, gt.UpdateProjectVariables>, {error}) => {
           return (
             <Fragment>
               <h1>Edit project</h1>
               <p>
                 Update the base project information.
               </p>
+              {error && <FormError>{error}</FormError>}
               <Form onSubmit={async (e) => {
                 e.preventDefault()
                 if (!this.state.value) {
@@ -229,10 +290,11 @@ const DeleteProject = ({id, name, onClose}) => (
   <Mutation
     mutation={DELETE_PROJECT}
     refetchQueries={ps}>
-    {(mutate: MutationFunction<gt.DeleteProject, gt.DeleteProjectVariables>) => {
+    {(mutate: MutationFunction<gt.DeleteProject, gt.DeleteProjectVariables>, {error}) => {
       return (
         <Fragment>
           <h1>Delete project</h1>
+          {error && <FormError>{error}</FormError>}
           <p>
             Are you sure that you want to delete project <i>{name}</i>? When deleted the project can not
             be restored.
@@ -253,34 +315,46 @@ const DeleteProject = ({id, name, onClose}) => (
     }}
   </Mutation>
 )
-/*
-const DeleteApp = ({id, project}) => (
-  <Fragment>
-    <h1>Delete application</h1>
-    <p>
-      Are you sure that you want to delete application <i>{data.projects[project].apps[id].title}</i>? When deleted the
-      project can not
-      be restored.
-    </p>
-    <ModalActions>
-      <Button positive>
-        Yes
-      </Button>
-      <Button negative>
-        No
-      </Button>
-    </ModalActions>
-  </Fragment>
+
+const DeleteApplication = ({id, name, onClose, project}) => (
+  <Mutation
+    mutation={DELETE_APPLICATION}
+    refetchQueries={(): { query: *, variables: * }[] => ([{query: GET_PROJECT, variables: {id: project}}])}>
+    {(mutate: MutationFunction<gt.DeleteApplication, gt.DeleteApplicationVariables>, {error}) => {
+      return (
+        <Fragment>
+          <h1>Delete application</h1>
+          {error && <FormError>{error}</FormError>}
+          <p>
+            Are you sure that you want to delete application <i>{name}</i>? When deleted the
+            project can not
+            be restored.
+          </p>
+          <ModalActions>
+            <Button positive onClick={async () => {
+              await mutate({variables: {id}})
+              onClose()
+            }}>
+              Yes
+            </Button>
+            <Button negative onClick={onClose}>
+              No
+            </Button>
+          </ModalActions>
+        </Fragment>)
+    }}
+  </Mutation>
 )
-*/
+
 const DeleteReport = ({id, name, onClose, project}) => (
   <Mutation
     mutation={DELETE_REPORT}
     refetchQueries={(): { query: *, variables: * }[] => ([{query: GET_PROJECT, variables: {id: project}}])}>
-    {(mutate: MutationFunction<gt.DeleteReport, gt.DeleteReportVariables>) => {
+    {(mutate: MutationFunction<gt.DeleteReport, gt.DeleteReportVariables>, {error}) => {
       return (
         <Fragment>
           <h1>Delete report</h1>
+          {error && <FormError>{error}</FormError>}
           <p>
             Are you sure that you want to delete report <i>{name}</i>? When deleted the
             project can not
@@ -302,68 +376,81 @@ const DeleteReport = ({id, name, onClose, project}) => (
   </Mutation>
 )
 
-const Selectable = styled.div`
-  ${Icon} {
-    height: 1em;
-    width: 1em;
-    margin-right: 0.5em;
-    fill: ${({selected}) => selected ? '#10171d' : '#7a7a7a'};
+class UploadApp extends React.Component<{ onClose: () => any, project: string }, { value: string, type: 'DESKTOP' | 'MOBILE', hasFile: boolean }> {
+  state = {value: '', type: 'DESKTOP', hasFile: false}
+  _file: ?File
+  refetch: { query: DocumentNode, variables?: {} }[] = [{
+    query: GET_PROJECT,
+    variables: {id: this.props.project}
+  }]
+
+  render () {
+    return (
+      <Mutation mutation={UPLOAD_APP} refetchQueries={this.refetch}>
+        {(upload: MutationFunction<gt.UploadApp, gt.UploadAppVariables>, {error}) => {
+          return (
+            <Fragment>
+              <h1>
+                Upload application
+              </h1>
+              <p>
+                Upload a new application!
+              </p>
+              {error && <FormError>{error}</FormError>}
+              <Form onSubmit={async e => {
+                e.preventDefault()
+                if (!this._file || !this.state.value) return
+                await upload({
+                  variables: {
+                    file: this._file,
+                    name: this.state.value,
+                    project: this.props.project,
+                    type: this.state.type
+                  }
+                })
+                this.props.onClose()
+              }}>
+                <Label>
+                  Name
+                  <TextField
+                    placeholder={'Fancy application'} value={this.state.value}
+                    onChange={e => this.setState({value: e.target.value})} />
+                </Label>
+                <FauxLabel>
+                  Type
+                  <Selectables>
+                    <Selectable
+                      radio selected={this.state.type === 'DESKTOP'}
+                      onClick={() => this.setState({type: 'DESKTOP'})}>
+                      <DesktopIcon />
+                      Desktop
+                    </Selectable>
+                    <Selectable
+                      radio selected={this.state.type === 'MOBILE'}
+                      onClick={() => this.setState({type: 'MOBILE'})}>
+                      <MobileIcon />
+                      Mobile
+                    </Selectable>
+                  </Selectables>
+                </FauxLabel>
+                <FileUpload onChange={e => {
+                  const file = e.target.files[0]
+                  if (!file) return
+                  this.setState(
+                    ({value}) => ({value: value || file.name, hasFile: true}),
+                    () => {
+                      this._file = file
+                    })
+                }} />
+                <Submit value={'Upload'} disabled={!this.state.value || !this.state.hasFile} />
+              </Form>
+            </Fragment>
+          )
+        }}
+      </Mutation>
+    )
   }
-  background-color: ${({selected}) => selected ? '#e0e0e0' : '#fff'};
-  transition: 0.1s background-color;
-  border: 0.05em solid #d8d8d8;
-  padding: 0.5em;
-  box-sizing: content-box;
-  font-family: Roboto, sans-serif;
-  font-weight: 400;
-  cursor: pointer;
-`
-
-const Selectables = styled.div`
-  ${Selectable} {
-  }
-  display: flex;
-`
-
-const FauxLabel = styled.div`
-    line-height: 1.5em;
-    padding-top: 0.5em;
-    font-weight: 700;
-    color: #363636;
-    display: block;
-`
-
-const UploadApp = ({project}) => (
-  <Fragment>
-    <h1>
-      Upload application
-    </h1>
-    <p>
-      Upload a new application!
-    </p>
-    <Form>
-      <Label>
-        Name
-        <TextField placeholder={'Fancy application'} />
-      </Label>
-      <FauxLabel>
-        Type
-        <Selectables>
-          <Selectable selected>
-            <DesktopIcon />
-            Desktop
-          </Selectable>
-          <Selectable>
-            <MobileIcon />
-            Mobile
-          </Selectable>
-        </Selectables>
-      </FauxLabel>
-      <FileUpload />
-      <Submit value={'Upload'} />
-    </Form>
-  </Fragment>
-)
+}
 
 class UploadReport extends React.Component<{ project: string, onClose: () => any }, { value: string, hasFile: boolean }> {
   state = {value: '', hasFile: false}
@@ -376,7 +463,7 @@ class UploadReport extends React.Component<{ project: string, onClose: () => any
     }]
     return (
       <Mutation mutation={UPLOAD_REPORT} refetchQueries={refetch}>
-        {(upload: MutationFunction<gt.UploadReport, gt.UploadReportVariables>) => {
+        {(upload: MutationFunction<gt.UploadReport, gt.UploadReportVariables>, {error}) => {
           return (
             <Fragment>
               <h1>
@@ -385,6 +472,7 @@ class UploadReport extends React.Component<{ project: string, onClose: () => any
               <p>
                 Upload a new report!
               </p>
+              {error && <FormError>{error}</FormError>}
               <Form onSubmit={async e => {
                 e.preventDefault()
                 await upload({variables: {file: this._file, name: this.state.value, project: this.props.project}})
@@ -487,6 +575,8 @@ type ProjectModal =
   | { kind: 'uploadReport' }
   | { kind: 'deleteReport', report: gt.GetProject_project_reports }
   | { kind: 'editReport', report: gt.GetProject_project_reports }
+  | { kind: 'deleteApplication', application: gt.GetProject_project_applications }
+  | { kind: 'editApplication', application: gt.GetProject_project_applications }
 
 class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
   state = {modal: null}
@@ -506,7 +596,8 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                     menu: project.applications.map(app => (
                       {
                         title: app.name,
-                        to: `${this.props.match.url}/apps/${app.id}`
+                        to: `${this.props.match.url}/apps/${app.id}`,
+                        icon: app.type === 'MOBILE' ? 'mobile' : 'desktop'
                       }
                     ))
                   },
@@ -515,13 +606,39 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                     menu: project.reports.map(report => (
                       {
                         title: report.name,
-                        to: `${this.props.match.url}/reports/${report.id}`
+                        to: `${this.props.match.url}/reports/${report.id}`,
+                        icon: 'document'
                       }
                     ))
                   }
                 ]}
               </LeftNav>
               <Switch>
+                <Route path={`${this.props.match.path}/apps/:app`} render={({match: {params, url}}) => {
+                  const app = project.applications.find(({id}) => id === params.app)
+                  if (!app) return null
+                  return (
+                    <Content>
+                      <TopNav>
+                        {[
+                          {
+                            type: 'Project',
+                            title: project.name,
+                            to: `${this.props.match.url}`
+                          },
+                          {
+                            type: 'Application',
+                            title: app.name,
+                            to: `${url}`
+                          }
+                        ]}
+                      </TopNav>
+                      <ContentView>
+                        <Screenshot app={app} />
+                      </ContentView>
+                    </Content>
+                  )
+                }} />
                 <Route path={`${this.props.match.path}/reports/:report`} render={({match: {params, url}}) => {
                   const report = project.reports.find(({id}) => id === params.report)
                   if (!report) return null
@@ -564,6 +681,8 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
                         onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
                         onUploadApplication={() => this.setState({modal: {kind: 'uploadApplication'}})}
+                        onEditApplication={application => this.setState({modal: {kind: 'editApplication', application}})}
+                        onDeleteApplication={application => this.setState({modal: {kind: 'deleteApplication', application}})}
                       >
                         {project}
                       </Project>
@@ -575,7 +694,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
               {this.state.modal && (
                 <Modal onClose={() => this.setState({modal: null})}>
                   {this.state.modal && this.state.modal.kind === 'uploadApplication' &&
-                  <UploadApp onClose={() => this.setState({modal: null})} />}
+                  <UploadApp onClose={() => this.setState({modal: null})} project={project.id} />}
                   {this.state.modal && this.state.modal.kind === 'uploadReport' &&
                   <UploadReport project={project.id} onClose={() => this.setState({modal: null})} />}
                   {this.state.modal && this.state.modal.kind === 'deleteReport' &&
@@ -585,6 +704,14 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                   {this.state.modal && this.state.modal.kind === 'editReport' &&
                   <EditReport
                     {...this.state.modal.report} project={project.id}
+                    onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal && this.state.modal.kind === 'deleteApplication' &&
+                  <DeleteApplication
+                    {...this.state.modal.application} project={project.id}
+                    onClose={() => this.setState({modal: null})} />}
+                  {this.state.modal && this.state.modal.kind === 'editApplication' &&
+                  <EditApplication
+                    {...this.state.modal.application} project={project.id}
                     onClose={() => this.setState({modal: null})} />}
                 </Modal>
               )}
@@ -605,228 +732,3 @@ export default () => (
     </Switch>
   </Container>
 )
-/*
-class App extends React.Component<{}, {| modal: ?ModalT |}> {
-  state = {modal: null}
-
-  onAddProject = () => this.setState({modal: {kind: 'addProject'}})
-  onUploadApplication = (project: string) => this.setState({modal: {kind: 'uploadApplication', project}})
-  onUploadReport = (project: string) => this.setState({modal: {kind: 'uploadReport', project}})
-  onDeleteApplication = (project: string, id: string) => this.setState({
-    modal: {
-      kind: 'deleteApplication',
-      id,
-      project
-    }
-  })
-  onDeleteReport = (project: string, id: string) => this.setState({modal: {kind: 'deleteReport', id, project}})
-  onDeleteProject = (id: string) => this.setState({modal: {kind: 'deleteProject', id}})
-  onEditApplication = (project: string, id: string) => this.setState({modal: {kind: 'editApplication', id, project}})
-  onEditReport = (project: string, id: string) => this.setState({modal: {kind: 'editReport', id, project}})
-  onEditProject = (id: string) => this.setState({modal: {kind: 'editProject', id}})
-  onClose = () => this.setState({modal: null})
-
-  _renderModal (modal: ModalT) {
-    switch (modal.kind) {
-      case 'addProject':
-        return (
-          <AddProject />
-        )
-      case 'editProject':
-        return (
-          <EditProject id={modal.id} />
-        )
-      case 'deleteProject':
-        return (
-          <DeleteProject id={modal.id} />
-        )
-      case 'deleteReport':
-        return (
-          <DeleteReport project={modal.project} id={modal.id} />
-        )
-      case 'deleteApplication':
-        return (
-          <DeleteApp project={modal.project} id={modal.id} />
-        )
-      case 'editApplication':
-        return (
-          <EditApp id={modal.id} project={modal.project} />
-        )
-      case 'editReport':
-        return (
-          <EditReport id={modal.id} project={modal.project} />
-        )
-      case 'uploadApplication':
-        return (
-          <UploadApp project={modal.project} />
-        )
-      case 'uploadReport':
-        return (
-          <UploadReport project={modal.project} />
-        )
-      default:
-        return (
-          <Fragment>
-            <h1>Unsupported kind: {modal.kind}</h1>
-            <ModalActions>
-
-            </ModalActions>
-          </Fragment>
-        )
-    }
-  }
-
-  render () {
-    return (
-      <Fragment>
-        <Container>
-          <Switch>
-            <Route path='/projects/:project' render={({match: {params: {project}}}) => (
-              <LeftNav>
-                {[{
-                  header: 'Applications',
-                  menu:
-                    Object
-                      .keys(data.projects[project].apps)
-                      .map(id => ({
-                        title: data.projects[project].apps[id].title,
-                        to: `/projects/${project}/apps/${id}`,
-                        icon: data.projects[project].apps[id].type
-                      }))
-                },
-                  {
-                    header: 'Reports',
-                    menu:
-                      Object
-                        .keys(data.projects[project].reports)
-                        .map(id => ({
-                          title: data.projects[project].reports[id].title,
-                          to: `/projects/${project}/reports/${id}`,
-                          icon: 'document'
-                        }))
-                  }
-                ]}
-              </LeftNav>
-            )} />
-            <Route path={'/projects'} render={() => (
-              <LeftNav>
-                {[{
-                  header: 'Projects',
-                  menu:
-                    Object
-                      .keys(data.projects)
-                      .map(id => ({
-                        title: data.projects[id].title,
-                        to: `/projects/${id}`,
-                        icon: 'project'
-                      }))
-                }]}
-              </LeftNav>
-            )} />
-            <Route render={() => (
-              <LeftNav>
-                {[]}
-              </LeftNav>
-            )} />
-          </Switch>
-          <Content>
-            <Switch>
-              <Route path={'/projects/:project/apps/:app'} render={({match: {params: {project, app}}}) => (
-                <TopNav>
-                  {[
-                    {
-                      title: data.projects[project].title,
-                      type: 'Project',
-                      to: `/projects/${project}`
-                    },
-                    {
-                      title: data.projects[project].apps[app].title,
-                      type: 'Application',
-                      to: `/projects/${project}/apps/${app}`
-                    }
-                  ]}
-                </TopNav>
-              )} />
-              <Route path={'/projects/:project/reports/:report'} render={({match: {params: {project, report}}}) => {
-                return (
-                  <TopNav>
-                    {[
-                      {
-                        title: data.projects[project].title,
-                        type: 'Project',
-                        to: `/projects/${project}`
-                      },
-                      {
-                        title: data.projects[project].reports[report].title,
-                        type: 'Report',
-                        to: `/projects/${project}/reports/${report}`
-                      }
-                    ]}
-                  </TopNav>
-                )
-              }} />
-              <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
-                <TopNav>
-                  {[
-                    {
-                      title: data.projects[project].title,
-                      type: 'Project',
-                      to: `/projects/${project}`
-                    }
-                  ]}
-                </TopNav>
-              )} />
-              <Route path={'/projects'} render={() => (
-                <TopNav>
-                  {[
-                    {
-                      title: 'Projects',
-                      type: '',
-                      to: `/projects`
-                    }
-                  ]}
-                </TopNav>
-              )} />
-            </Switch>
-            <ContentView>
-              <Switch>
-                <Route path={'/projects/:project/apps/:app'} render={({match: {params: {project, app}}}) => (
-                  <Screenshot app={data.projects[project].apps[app]} />
-                )} />
-                <Route path={'/projects/:project/reports/:report'} component={Report} />
-                <Route path={'/projects/:project'} render={({match: {params: {project}}}) => (
-                  <Project
-                    id={project}
-                    onDeleteApplication={this.onDeleteApplication}
-                    onDeleteReport={this.onDeleteReport}
-                    onUploadApplication={this.onUploadApplication}
-                    onUploadReport={this.onUploadReport}
-                    onEditApplication={this.onEditApplication}
-                    onEditReport={this.onEditReport}
-                  >
-                    {data.projects[project]}
-                  </Project>
-                )} />
-                <Route path={'/projects'} render={() => (
-                  <Projects
-                    onEditProject={this.onEditProject}
-                    onAddProject={this.onAddProject}
-                    onDeleteProject={this.onDeleteProject}>
-                    {data.projects}
-                  </Projects>
-                )} />
-                <Redirect from={'/'} to={'/projects'} exact />
-              </Switch>
-            </ContentView>
-          </Content>
-        </Container>
-        {this.state.modal && (
-          <Modal onClose={this.onClose}>
-            {this._renderModal(this.state.modal)}
-          </Modal>
-        )}
-      </Fragment>
-    )
-  }
-}
-*/

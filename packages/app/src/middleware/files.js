@@ -6,14 +6,21 @@ import { apolloUploadKoa } from 'apollo-upload-server'
 
 const router = new KoaRouter()
 
+const types = {
+  png: 'image/png',
+  jpg: 'image/jpgeg'
+}
+
 router.get('/files/:fileId', async (ctx, next) => {
   const file = await ctx.db.fileByPublicId(ctx.params.fileId)
   if (!file) return next()
   const b = Buffer.from(file.data)
   if (file.kind === 'pdf') {
     ctx.response.type = 'application/pdf'
-    ctx.response.length = file.data.buffer.byteLength
+  } else {
+    ctx.response.type = types[file.type]
   }
+  ctx.response.length = file.data.buffer.byteLength
   ctx.response.body = file.data.buffer
 })
 

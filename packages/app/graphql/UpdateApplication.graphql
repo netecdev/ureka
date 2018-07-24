@@ -1,0 +1,7 @@
+mutation UpdateApplication($id: ID!, $name: String, $type: ApplicationType) {
+    updateApplication(id: $id, name: $name, type: $type) {
+        name
+        id
+        type
+    }
+}

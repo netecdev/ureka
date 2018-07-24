@@ -1,0 +1,11 @@
+mutation AddAnnotation ($app: ID!, $x: Int!, $y: Int!, $width: Int!, $height: Int!, $description: String!, $type: AnnotationType!){
+    createAnnotation(application: $app, x: $x, y: $y, width: $width, height: $height, description: $description, type: $type) {
+        description
+        x
+        y
+        width
+        height
+        description
+        type
+    }
+}

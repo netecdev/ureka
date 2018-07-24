@@ -1,0 +1,12 @@
+query GetApplication($id: ID!) {
+    application(id: $id) {
+        annotations {
+            x
+            y
+            width
+            height
+            description
+            type
+        }
+    }
+}

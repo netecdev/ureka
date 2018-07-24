@@ -10,6 +10,11 @@ fragment ApplicationFragment on Application {
     id
     name
     type
+    screenshot {
+        width
+        height
+        url
+    }
 }
 
 

@@ -12,13 +12,12 @@ export type Project = {|
 |}
 
 export type ApplicationType =
-  | 'mobile'
-  | 'desktop'
+  | 'MOBILE'
+  | 'DESKTOP'
 
 export type Application = {|
   _id: mongo.ObjectID,
   name: string,
-  screenshot: mongo.ObjectID,
   type: ApplicationType,
   project: mongo.ObjectID,
   created: Date
@@ -59,6 +58,7 @@ export type Cursor = number
 type Image = {|
   _id: mongo.ObjectID,
   kind: 'image',
+  type: 'png' | 'jpg',
   height: number,
   width: number,
   created: Date,
@@ -228,6 +228,12 @@ export default class Db {
       .findOne({_id: id})
   }
 
+  async application (id: mongo.ObjectID): Promise<?Application> {
+    return (await this._collectionsP)
+      .applications
+      .findOne({_id: id})
+  }
+
   async file (id: mongo.ObjectID): Promise<?File> {
     return (await this._collectionsP)
       .files
@@ -238,6 +244,12 @@ export default class Db {
     return (await this._collectionsP)
       .files
       .findOne({report})
+  }
+
+  async fileByApp (application: mongo.ObjectID): Promise<?File> {
+    return (await this._collectionsP)
+      .files
+      .findOne({application})
   }
 
   async fileByPublicId (id: string): Promise<?File> {
@@ -267,10 +279,24 @@ export default class Db {
     return insertedId
   }
 
+  async createApp (o: WithoutId<Application>): Promise<mongo.ObjectID> {
+    const {insertedId} = await (await this._collectionsP).applications.insertOne({...o, created: new Date()})
+    return insertedId
+  }
+
   async projectByPublicId (publicId: string): Promise<?Project> {
     return (await this._collectionsP)
       .projects
       .findOne({publicId})
+  }
+
+  async applicationByProjectAndId (project: mongo.ObjectID, id: mongo.ObjectID): Promise<?Application> {
+    return (await this._collectionsP)
+      .applications
+      .findOne({
+        project,
+        _id: id
+      })
   }
 
   async deleteProject (id: mongo.ObjectID): Promise<{| deleted: number |}> {
@@ -286,6 +312,14 @@ export default class Db {
       .deleteOne({_id: id})
     return {deleted: deletedCount}
   }
+
+  async deleteApplication (id: mongo.ObjectID): Promise<{| deleted: number |}> {
+    const {deletedCount} = await (await this._collectionsP)
+      .applications
+      .deleteOne({_id: id})
+    return {deleted: deletedCount}
+  }
+
   async deleteReportByProject (project: mongo.ObjectID): Promise<{| deleted: number |}> {
     const {deletedCount} = await (await this._collectionsP)
       .reports
@@ -316,11 +350,29 @@ export default class Db {
       )
     return {modified: modifiedCount}
   }
+  async updateApplication (id: mongo.ObjectID, o: $Shape<Application>): Promise<{| modified: number |}> {
+    const {modifiedCount} = await (await this._collectionsP)
+      .applications
+      .updateOne(
+        {_id: id},
+        {
+          $set: o
+        }
+      )
+    return {modified: modifiedCount}
+  }
 
   async deleteFileByReport (report: mongo.ObjectID) {
     const {deletedCount} = await (await this._collectionsP)
       .files
       .deleteMany({report})
+    return {deleted: deletedCount}
+  }
+
+  async deleteFileByApplication (application: mongo.ObjectID) {
+    const {deletedCount} = await (await this._collectionsP)
+      .files
+      .deleteMany({application})
     return {deleted: deletedCount}
   }
 
