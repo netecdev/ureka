@@ -5,7 +5,6 @@ import KeyGrapper from './KeyGrapper'
 import { EditIcon, CheckmarkIcon, CloseIcon, Icon, PlusIcon, TrashIcon } from './Icons'
 import Form, { Buttons, FauxLabel, FormError, Label, Selectable, Selectables, TextArea } from './Form'
 import Button from './Button'
-import ReactMarkdown from 'react-markdown'
 import * as gt from '../../graphql'
 import { Query, type QueryRenderProps, Mutation, type MutationFunction } from 'react-apollo'
 import GET_APPLICATION from '../../graphql/GetApplication.graphql'
@@ -15,10 +14,7 @@ import DELETE_ANNOTATION from '../../graphql/DeleteAnnotation.graphql'
 import { Fragment } from 'react'
 import { ModalActions } from './Modal'
 import Modal from './Modal'
-
-const Container = styled.div`
-
-`
+import ReactMarkdown from 'react-markdown'
 
 type Can = {|
   width: number,
@@ -30,17 +26,6 @@ const fadeInKf = keyframes`
     opacity: 0;
   }
   100% {
-    opacity: 100%;
-  }
-`
-
-const fadeInAndDownKf = keyframes`
-  0% {
-    margin-top: -0.5em;
-    opacity: 0;
-  }
-  100% {
-    margin-top: 0;
     opacity: 100%;
   }
 `
@@ -147,17 +132,7 @@ const AnnotateBox = styled.div.attrs({
   ${Drag} {
     background-color: ${({type}) => annotateColors[type].foreground};
   }
-  ${EditIcon} {
-    transition: 0.1s opacity;
-    opacity: ${({active}) => active ? 1 : 0};
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 1em;
-    width: 1em;
-    background-color: ${({type}) => annotateColors[type].foreground};
-    fill: #fff;
-  }
+
   ${AnnotateActionIcons} {
     position: absolute;
     top: calc(100% + 1em);
@@ -165,40 +140,11 @@ const AnnotateBox = styled.div.attrs({
     width: 5em;
     margin-left: -2.5em;
   }
-`
-
-const AnnotateLabel = styled.div`
-  position: absolute;
-  top: calc(${({y, height, scale}) => (y + height) * scale}px + 1em);
-  left: ${({x, width, scale, offsetLeft}) => offsetLeft + (((x + (width / 2)) * scale))}px;
-  margin-left: -15em;
-  background-color: #fff;
-  font-family: Roboto, sans-serif;
-  padding: 1em 2em;
-  z-index: 11;
-  box-shadow: 0 0 0.5em #595959;
-  width: 30em;
-  box-sizing: border-box;
-  p {
-    font-size: 0.9em;
-    line-height: 1.5em;
-    text-align: justify;
-  }
-  ${Icon} {
-    height: 1em;
-    width: 1em;
-    margin-left: 1em;
-    float: right;
-    fill: #ff00b4;
-  }
-  animation: ${fadeInAndDownKf} 0.1s ease-in;
-`
-
-const AnnotateContainer = styled.div`
   ${Icon} {
     cursor: pointer;
     user-select: none;
   }
+
 `
 
 type Pos = {| x: number, y: number |}
@@ -354,93 +300,18 @@ class DraggerContainer extends React.Component<{|
 
 type AProps = {|
   open?: boolean,
-  new?: boolean,
-  editing: ?'box' | 'text',
+  editing?: boolean,
   canvas: Can,
   screenshot: gt.GetProject_project_applications_screenshot,
   annotation: gt.GetApplication_application_annotations,
   onStopEdit?: () => any,
+  onDelete?: () => any,
   onClick?: () => any,
-  onEditBox?: () => any,
-  onEditText?: () => any,
-  onDelete?: gt.GetApplication_application_annotations => any,
-  onSaveText?: ({ description: string, type: gt.AnnotationType }) => any,
-  onChange?: ({ description: string, type: gt.AnnotationType }) => any,
-  onSaveBox?: (rect: Rect) => any
+  onEdit?: () => any,
+  onSave?: (rect: Rect) => any
 |}
 
 class A extends React.Component<AProps> {
-
-  _editBox = e => {
-    e.stopPropagation()
-    this.props.onEditBox && this.props.onEditBox()
-  }
-  _editText = () => {
-    this.props.onEditText && this.props.onEditText()
-  }
-  _save = e => {
-    e.preventDefault()
-    this.props.onSaveText && this.props.onSaveText({
-      description: this.props.annotation.description,
-      type: this.props.annotation.type
-    })
-  }
-  _cancel = e => {
-    e.preventDefault()
-    this.props.onStopEdit && this.props.onStopEdit()
-  }
-  _changeType = type => () => this.props.onChange && this.props.onChange({
-    description: this.props.annotation.description,
-    type
-  })
-
-  _renderTextEditor () {
-    return (
-      <Form>
-        <Label>
-          Description
-          <TextArea value={this.props.annotation.description}
-                    onChange={(e) => this.props.onChange && this.props.onChange({
-                      description: e.target.value,
-                      type: this.props.annotation.type
-                    })} />
-        </Label>
-        <FauxLabel>
-          Type
-          <Selectables>
-            <Selectable
-              selected={this.props.annotation.type === 'FUNCTIONALITY'}
-              onClick={this._changeType('FUNCTIONALITY')}>
-              Functionality
-            </Selectable>
-            <Selectable
-              selected={this.props.annotation.type === 'DESIGN'}
-              onClick={this._changeType('DESIGN')}>
-              Design
-            </Selectable>
-            <Selectable
-              selected={this.props.annotation.type === 'USABILITY'}
-              onClick={this._changeType('USABILITY')}>
-              Usability
-            </Selectable>
-            <Selectable
-              selected={this.props.annotation.type === 'LANGUAGE'}
-              onClick={this._changeType('LANGUAGE')}>
-              Language
-            </Selectable>
-          </Selectables>
-        </FauxLabel>
-        <Buttons>
-          <Button onClick={this._save}>
-            {this.props.new ? 'Create' : 'Update'}
-          </Button>
-          <Button grey onClick={this._cancel}>
-            Cancel
-          </Button>
-        </Buttons>
-      </Form>
-    )
-  }
 
   render () {
     const scale = this.props.canvas.width / this.props.screenshot.width
@@ -449,41 +320,38 @@ class A extends React.Component<AProps> {
     const y = this.props.annotation.y
     const width = this.props.annotation.width
     const height = this.props.annotation.height
-    const onDelete = this.props.onDelete
     return (
-      <AnnotateContainer>
-        {this.props.open && this.props.editing === 'box'
-          ? (
-            <DraggerContainer
-              {...{x, y, width, height, offsetLeft, scale}}
-              type={this.props.annotation.type}
-              onClose={this.props.onStopEdit}
-              onSave={this.props.onSaveBox}
-            />
-          ) : (
-            <AnnotateBox
-              type={this.props.annotation.type}
-              {...{x, offsetLeft, y, width, height, scale}} onClick={this.props.onClick}
-              active={this.props.open}>
-              <EditIcon onClick={this._editBox} />
-            </AnnotateBox>
-
-          )}
-        {this.props.open && this.props.editing !== 'box' && (
-          <AnnotateLabel {...{x, y, offsetLeft, scale, width, height}}>
-            {this.props.editing === 'text' ? (
-              this._renderTextEditor()
-            ) : (
-              <div>
-                <ReactMarkdown source={this.props.annotation.description} />
-                <EditIcon onClick={this._editText} />
-                {onDelete && <TrashIcon onClick={() => onDelete(this.props.annotation)} />}
-              </div>
-            )}
-          </AnnotateLabel>
-        )}
-      </AnnotateContainer>
-    )
+      this.props.open && this.props.editing
+        ? (
+          <DraggerContainer
+            {...{x, y, width, height, offsetLeft, scale}}
+            type={this.props.annotation.type}
+            onClose={this.props.onStopEdit}
+            onSave={this.props.onSave}
+          />
+        ) : (
+          <AnnotateBox
+            type={this.props.annotation.type}
+            {...{x, offsetLeft, y, width, height, scale}}
+            onClick={this.props.onClick}
+            active={this.props.open}>
+            {this.props.open &&
+            (<AnnotateActionIcons>
+              <Action onClick={e => {
+                e.stopPropagation()
+                this.props.onEdit && this.props.onEdit()
+              }}>
+                <EditIcon />
+              </Action>
+              <Action onClick={e => {
+                e.stopPropagation()
+                this.props.onDelete && this.props.onDelete()
+              }} red>
+                <TrashIcon />
+              </Action>
+            </AnnotateActionIcons>)}
+          </AnnotateBox>
+        ))
   }
 }
 
@@ -538,14 +406,6 @@ function prettyRect (rect: Rect): Rect {
   }
 }
 
-function prettyAnnotation (annotation: gt.GetApplication_application_annotations): gt.GetApplication_application_annotations {
-  const {x, y, width, height} = annotation
-  return {
-    ...annotation,
-    ...prettyRect({x, y, width, height})
-  }
-}
-
 type CreatorAProps = {|
   app: gt.GetProject_project_applications,
   x: number,
@@ -553,17 +413,16 @@ type CreatorAProps = {|
   width: number,
   height: number,
   canvas: Can,
-  onClose?: () => any,
+  onCreate?: string => any,
+  onCancel?: () => any,
   project: string
 |}
 type CreatorAState = {|
   annotation: gt.GetApplication_application_annotations,
-  step: 0 | 1
 |}
 
 class CreatorA extends React.Component<CreatorAProps, CreatorAState> {
   state = {
-    step: 0,
     annotation:
       {
         id: '',
@@ -589,17 +448,14 @@ class CreatorA extends React.Component<CreatorAProps, CreatorAState> {
           return (
             <A
               open
-              new
-              onStopEdit={() => this.props.onClose && this.props.onClose()}
-              onEditText={() => this.setState({step: 1})}
-              onEditBox={() => this.setState({step: 0})}
-              onSaveBox={rect => this.setState(({annotation}) => ({step: 1, annotation: {...annotation, ...rect}}))}
-              onChange={o => this.setState(({annotation}) => ({step: 1, annotation: {...annotation, ...o}}))}
-              onSaveText={async () => {
-                await f({variables: {app: this.props.app.id, ...prettyAnnotation(this.state.annotation)}})
-                this.props.onClose && this.props.onClose()
+              onStopEdit={() => this.props.onCancel && this.props.onCancel()}
+              onSave={async (rect) => {
+                const res = await f({variables: {app: this.props.app.id, ...this.state.annotation, ...prettyRect(rect)}})
+                if (res && res.data && this.props.onCreate) {
+                  this.props.onCreate(res.data.createAnnotation.id)
+                }
               }}
-              editing={this.state.step ? 'text' : 'box'}
+              editing
               canvas={this.props.canvas}
               annotation={this.state.annotation}
               screenshot={this.props.app.screenshot}
@@ -614,34 +470,29 @@ type EditableAProps = {|
   app: gt.GetProject_project_applications,
   canvas: Can,
   open?: boolean,
-  onClick?: () => any,
+  onOpen?: () => any,
   onClose?: () => any,
-  onDelete?: gt.GetApplication_application_annotations => any,
+  onDelete?: () => any,
   project: string,
   annotation: gt.GetApplication_application_annotations
 |}
 type EditableAState = {|
-  editing: ?('box' | 'text'),
-  annotation: ?gt.GetApplication_application_annotations
+  editing: boolean
 |}
 
 class EditableA extends React.Component<EditableAProps, EditableAState> {
-  state = {editing: null, annotation: null}
-  _startEdit = editing => () => this.setState(({annotation}) => ({
-    editing,
-    annotation: annotation || this.props.annotation
-  }))
-  _change = update => this.setState(({annotation}) => ({annotation: {...(annotation || this.props.annotation), ...update}}))
+  state = {editing: false}
+
+  componentDidUpdate (props) {
+    if (!this.props.open && props.open) {
+      this.setState({editing: false})
+    }
+  }
+
   rf: { query: *, variables: * }[] = [{
     query: GET_APPLICATION,
     variables: {id: this.props.app.id, project: this.props.project}
   }]
-
-  componentDidUpdate (props) {
-    if (!this.props.open && props.open) {
-      this.setState({editing: null, annotation: null})
-    }
-  }
 
   render () {
     return (
@@ -651,22 +502,22 @@ class EditableA extends React.Component<EditableAProps, EditableAState> {
             <A screenshot={this.props.app.screenshot}
                canvas={this.props.canvas}
                editing={this.state.editing}
-               open={this.props.open}
                onDelete={this.props.onDelete}
-               onEditBox={this._startEdit('box')}
-               onSaveBox={async rect => {
+               onEdit={() => this.setState({editing: true})}
+               onSave={async rect => {
                  await f({variables: {...prettyRect(rect), annotation: this.props.annotation.id}})
-                 this.props.onClose && this.props.onClose()
+                 this.setState({editing: false})
                }}
-               onSaveText={async text => {
-                 await f({variables: {...text, annotation: this.props.annotation.id}})
-                 this.props.onClose && this.props.onClose()
+               open={this.props.open}
+               onStopEdit={() => this.setState({editing: false})}
+               onClick={() => {
+                 if (this.props.open) {
+                   this.props.onClose && this.props.onClose()
+                 } else {
+                   this.props.onOpen && this.props.onOpen()
+                 }
                }}
-               onEditText={this._startEdit('text')}
-               onStopEdit={() => this.setState({editing: null, annotation: null})}
-               onChange={this._change}
-               onClick={this.props.onClick}
-               annotation={this.state.annotation || this.props.annotation} />
+               annotation={this.props.annotation} />
           )
         }}
       </Mutation>
@@ -703,6 +554,199 @@ const DeleteAnnotation = ({id, app, onClose, project}) => (
   </Mutation>
 )
 
+const C1 = styled.div`
+  display: flex;
+  height: 100%;
+  align-items: stretch;
+`
+
+const C11 = styled.div`
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+`
+
+const C12 = styled.div`
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+  flex-basis: 20em;
+  width: 20em;
+`
+
+type EditableDescriptionProps = {|
+  open: boolean,
+  app: string,
+  project: string,
+  onDelete?: () => any,
+  annotation: gt.GetApplication_application_annotations,
+  canvas: Can,
+  screenshot: gt.GetProject_project_applications_screenshot
+|}
+
+const DescriptionContainer = styled.div`
+  position: absolute;
+  top: ${({y}) => y}px;
+  width: 100%;
+  left: -0.5em;
+  z-index: 20;
+  ${AnnotateActionIcons} {
+    position: absolute;
+    top: calc(100% + 1em);
+    left: 50%;
+    width: 5em;
+    margin-left: -2.5em;
+  }
+
+`
+
+const DescRM = styled.div`
+
+`
+const DescBox = styled.div`
+  background-color: #fff;
+  box-shadow: 0 0 0.5em #aaa;
+  padding: 1em;
+  > ${DescRM} {
+    font-family: Roboto, sans-serif;
+    font-size: 0.8em;
+  }
+  ${TextArea} {
+    min-height: 10em
+  }
+`
+
+const TypeDot = styled.div`
+  background-color: ${({type}) => annotateColors[type].foreground};
+  height: 1em;
+  width: 1em;
+  border-radius: 0.5em;
+  float: right;
+`
+
+const EditableLabel = styled(({type, ...props}) => (
+  <div {...props}>
+    <TypeDot type={type} /> {type}
+  </div>
+))`
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 0.9em;
+    color: #7d7d7d;
+`
+
+class EditableDescription extends React.Component<EditableDescriptionProps, { editing: boolean, description: string, type: gt.AnnotationType }> {
+  state = {editing: false, description: '', type: 'DESIGN'}
+
+  y () {
+    const scale = this.props.canvas.width / this.props.screenshot.width
+    return scale * this.props.annotation.y
+  }
+
+  _submit = async (f: *) => {
+    await f({
+      variables: {
+        annotation: this.props.annotation.id,
+        description: this.state.description,
+        type: this.state.type
+      }
+    })
+    this.setState({editing: false})
+  }
+
+  _renderContent (f) {
+    if (this.state.editing) {
+      return (
+        <React.Fragment>
+          <DescBox>
+            <EditableLabel type={this.state.type}/>
+            <DescRM>
+              <ReactMarkdown source={this.state.description} />
+            </DescRM>
+            <Form onSubmit={async (e) => {
+              e.preventDefault()
+              this._submit(f)
+            }}>
+              <TextArea value={this.state.description} onChange={e => this.setState({description: e.target.value})} />
+              <Selectables>
+                <Selectable
+                  selected={this.state.type === 'USABILITY'}
+                  onClick={() => this.setState({type: 'USABILITY'})}>
+                  <input type={'checkbox'} checked={this.state.type === 'USABILITY'} />
+                  Usability
+                </Selectable>
+                <Selectable selected={this.state.type === 'DESIGN'} onClick={() => this.setState({type: 'DESIGN'})}>
+                  <input type={'checkbox'} checked={this.state.type === 'DESIGN'} />
+                  Design
+                </Selectable>
+                <Selectable selected={this.state.type === 'FUNCTIONALITY'}
+                            onClick={() => this.setState({type: 'FUNCTIONALITY'})}>
+                  <input type={'checkbox'} checked={this.state.type === 'FUNCTIONALITY'} />
+                  Functionality
+                </Selectable>
+                <Selectable selected={this.state.type === 'LANGUAGE'} onClick={() => this.setState({type: 'LANGUAGE'})}>
+                  <input type={'checkbox'} checked={this.state.type === 'LANGUAGE'} />
+                  Language
+                </Selectable>
+              </Selectables>
+            </Form>
+          </DescBox>
+          <AnnotateActionIcons>
+            <Action onClick={() => this._submit(f)}>
+              <CheckmarkIcon />
+            </Action>
+            <Action red onClick={() => this.setState({editing: false})}>
+              <CloseIcon />
+            </Action>
+          </AnnotateActionIcons>
+        </React.Fragment>
+      )
+    }
+    return (
+      <React.Fragment>
+        <DescBox>
+          <EditableLabel type={this.props.annotation.type}/>
+          <DescRM>
+            <ReactMarkdown source={this.props.annotation.description} />
+          </DescRM>
+        </DescBox>
+        <AnnotateActionIcons>
+          <Action onClick={() => this.setState({
+            editing: true,
+            description: this.props.annotation.description,
+            type: this.props.annotation.type
+          })}>
+            <EditIcon />
+          </Action>
+          <Action red onClick={this.props.onDelete}>
+            <TrashIcon />
+          </Action>
+        </AnnotateActionIcons>
+      </React.Fragment>
+    )
+  }
+
+  rf: { query: *, variables: * }[] = [{
+    query: GET_APPLICATION,
+    variables: {id: this.props.app, project: this.props.project}
+  }]
+
+  render () {
+    if (!this.props.open) {
+      return null
+    }
+    return (
+      <Mutation mutation={UPDATE_ANNOTATION} refetchQueries={this.rf}>
+        {(f: MutationFunction<gt.UpdateAnnotation, gt.UpdateAnnotationVariables>) => {
+          return (
+            <DescriptionContainer y={this.y()}>
+              {this._renderContent(f)}
+            </DescriptionContainer>)
+        }}
+      </Mutation>
+    )
+  }
+}
+
 type AnnotatorState = {|
   canvas: ?Can,
   open: ?string,
@@ -713,7 +757,6 @@ type AnnotatorState = {|
 type AnnotatorProps = {|
   app: gt.GetProject_project_applications,
   annotations: gt.GetApplication_application_annotations[],
-  onDelete?: gt.GetApplication_application_annotations => any,
   project: string,
 |}
 
@@ -769,12 +812,29 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
           <EditableA
             project={this.props.project}
             annotation={annotation}
+            onDelete={() => this.setState({modal: annotation})}
             canvas={canvas}
-            onDelete={modal => this.setState({modal})}
             app={this.props.app}
             open={!this.state.adding && this.state.open === annotation.id}
             onClose={this._close}
-            onClick={() => this.setState(({open, adding}) => ({open: adding || open === annotation.id ? null : annotation.id}))}
+            onOpen={() => this.setState({open: annotation.id})}
+            key={annotation.id} />
+        )
+      )
+  }
+
+  _renderAnnotationLabels (canvas: Can) {
+    return this.props
+      .annotations
+      .map((annotation) => (
+          <EditableDescription
+            project={this.props.project}
+            app={this.props.app.id}
+            onDelete={() => this.setState({modal: annotation})}
+            open={this.state.open === annotation.id}
+            canvas={canvas}
+            screenshot={this.props.app.screenshot}
+            annotation={annotation}
             key={annotation.id} />
         )
       )
@@ -787,7 +847,8 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
     return (
       <CreatorA
         project={this.props.project}
-        onClose={() => this.setState({adding: false})}
+        onCancel={() => this.setState({adding: false})}
+        onCreate={open => this.setState({open, adding: false})}
         app={this.props.app}
         {...this.state.adding}
         canvas={can} />
@@ -797,27 +858,37 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   render () {
     return (
       <React.Fragment>
-        <ImageContainer adding={this.state.adding}>
-          {this.state.canvas && this._renderAnnotations(this.state.canvas)}
-          {this.state.canvas && this._renderAdderRect(this.state.canvas)}
-          {this.state.adding === true && <ClickCatcher onClick={this._add} />}
-          <img
-            onClick={this._close}
-            ref={(r) => {this._ref = r}}
-            onLoad={this._onLoad}
-            src={this.props.app.screenshot.url}
-          />
-          <KeyGrapper code={'Escape'} on={this._close} />
-        </ImageContainer>
-        <Adder onClick={() => this.setState(({adding}) => adding ? {adding: false, open: null} : {
-          adding: true,
-          open: null
-        })}>
-          {!this.state.adding ? <PlusIcon /> : <CloseIcon />}
-        </Adder>
+        <C1>
+          <C11>
+            <ImageContainer adding={this.state.adding}>
+              {this.state.canvas && this._renderAnnotations(this.state.canvas)}
+              {this.state.canvas && this._renderAdderRect(this.state.canvas)}
+              {this.state.adding === true && <ClickCatcher onClick={this._add} />}
+              <img
+                onClick={this._close}
+                ref={(r) => {this._ref = r}}
+                onLoad={this._onLoad}
+                src={this.props.app.screenshot.url}
+              />
+              <KeyGrapper code={'Escape'} on={this._close} />
+            </ImageContainer>
+            <Adder onClick={() => this.setState(({adding}) => adding ? {adding: false, open: null} : {
+              adding: true,
+              open: null
+            })}>
+              {!this.state.adding ? <PlusIcon /> : <CloseIcon />}
+            </Adder>
+          </C11>
+          <C12>
+            {this.state.canvas && this._renderAnnotationLabels(this.state.canvas)}
+          </C12>
+        </C1>
+
         {this.state.modal && (
           <Modal>
-            <DeleteAnnotation id={this.state.modal.id} app={this.props.app.id} project={this.props.project} onClose={() => this.setState({modal: null})}/>
+            <DeleteAnnotation
+              id={this.state.modal.id} app={this.props.app.id} project={this.props.project}
+              onClose={() => this.setState({modal: null})} />
           </Modal>
         )}
       </React.Fragment>
@@ -826,12 +897,12 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
 }
 
 export default ({app, project}: {| app: gt.GetProject_project_applications, project: string |}) => (
-  <Container>
+  <React.Fragment>
     <Query query={GET_APPLICATION} variables={{id: app.id, project: project}}>
       {({data, error, loading}: QueryRenderProps<gt.GetApplication, gt.GetApplicationVariables>) => {
         const annotations = error || loading || !data || !data.application ? [] : data.application.annotations
         return <Annotator app={app} annotations={annotations} project={project} />
       }}
     </Query>
-  </Container>
+  </React.Fragment>
 )

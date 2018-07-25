@@ -43,7 +43,7 @@ const Content = styled.div`
   flex-direction: column;
   flex-grow: 1;
   flex-shrink: 1;
-  
+  align-items: stretch;  
   > ${TopNav} {
     flex-grow: 0;
     flex-shrink: 0;

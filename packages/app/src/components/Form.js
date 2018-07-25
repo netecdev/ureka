@@ -99,6 +99,7 @@ export const FormError = styled(({children, ...props}) => (<div {...props}>{chil
 export const Selectables = styled.div`
   ${Selectable} {
   }
+  flex-wrap: wrap;
   display: flex;
 `
 
