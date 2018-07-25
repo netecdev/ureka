@@ -346,6 +346,27 @@ export default class Db {
     return {deleted: deletedCount}
   }
 
+  async deleteAnnotation (id: mongo.ObjectID): Promise<{|deleted: number|}> {
+    const {deletedCount} = await (await this._collectionsP)
+      .annotations
+      .deleteMany({_id: id})
+    return {deleted: deletedCount}
+  }
+
+  async deleteAnnotationByProject (project: mongo.ObjectID): Promise<{|deleted: number|}> {
+    const {deletedCount} = await (await this._collectionsP)
+      .annotations
+      .deleteMany({project})
+    return {deleted: deletedCount}
+  }
+
+  async deleteAnnotationByApp (application: mongo.ObjectID): Promise<{|deleted: number|}> {
+    const {deletedCount} = await (await this._collectionsP)
+      .annotations
+      .deleteMany({application})
+    return {deleted: deletedCount}
+  }
+
   async updateProject (id: mongo.ObjectID, o: $Shape<Project>): Promise<{| modified: number |}> {
     const {modifiedCount} = await (await this._collectionsP)
       .projects

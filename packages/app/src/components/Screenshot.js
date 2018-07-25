@@ -2,8 +2,8 @@
 import * as React from 'react'
 import styled, { keyframes } from 'styled-components'
 import KeyGrapper from './KeyGrapper'
-import { EditIcon, CheckmarkIcon, CloseIcon, Icon, PlusIcon } from './Icons'
-import Form, { Buttons, FauxLabel, Label, Selectable, Selectables, TextArea } from './Form'
+import { EditIcon, CheckmarkIcon, CloseIcon, Icon, PlusIcon, TrashIcon } from './Icons'
+import Form, { Buttons, FauxLabel, FormError, Label, Selectable, Selectables, TextArea } from './Form'
 import Button from './Button'
 import ReactMarkdown from 'react-markdown'
 import * as gt from '../../graphql'
@@ -11,6 +11,10 @@ import { Query, type QueryRenderProps, Mutation, type MutationFunction } from 'r
 import GET_APPLICATION from '../../graphql/GetApplication.graphql'
 import ADD_ANNOTATION from '../../graphql/AddAnnotation.graphql'
 import UPDATE_ANNOTATION from '../../graphql/UpdateAnnotation.graphql'
+import DELETE_ANNOTATION from '../../graphql/DeleteAnnotation.graphql'
+import { Fragment } from 'react'
+import { ModalActions } from './Modal'
+import Modal from './Modal'
 
 const Container = styled.div`
 
@@ -180,9 +184,10 @@ const AnnotateLabel = styled.div`
     line-height: 1.5em;
     text-align: justify;
   }
-  ${EditIcon} {
+  ${Icon} {
     height: 1em;
     width: 1em;
+    margin-left: 1em;
     float: right;
     fill: #ff00b4;
   }
@@ -190,8 +195,9 @@ const AnnotateLabel = styled.div`
 `
 
 const AnnotateContainer = styled.div`
-  ${EditIcon} {
+  ${Icon} {
     cursor: pointer;
+    user-select: none;
   }
 `
 
@@ -357,6 +363,7 @@ type AProps = {|
   onClick?: () => any,
   onEditBox?: () => any,
   onEditText?: () => any,
+  onDelete?: gt.GetApplication_application_annotations => any,
   onSaveText?: ({ description: string, type: gt.AnnotationType }) => any,
   onChange?: ({ description: string, type: gt.AnnotationType }) => any,
   onSaveBox?: (rect: Rect) => any
@@ -442,6 +449,7 @@ class A extends React.Component<AProps> {
     const y = this.props.annotation.y
     const width = this.props.annotation.width
     const height = this.props.annotation.height
+    const onDelete = this.props.onDelete
     return (
       <AnnotateContainer>
         {this.props.open && this.props.editing === 'box'
@@ -469,6 +477,7 @@ class A extends React.Component<AProps> {
               <div>
                 <ReactMarkdown source={this.props.annotation.description} />
                 <EditIcon onClick={this._editText} />
+                {onDelete && <TrashIcon onClick={() => onDelete(this.props.annotation)} />}
               </div>
             )}
           </AnnotateLabel>
@@ -607,6 +616,7 @@ type EditableAProps = {|
   open?: boolean,
   onClick?: () => any,
   onClose?: () => any,
+  onDelete?: gt.GetApplication_application_annotations => any,
   project: string,
   annotation: gt.GetApplication_application_annotations
 |}
@@ -642,6 +652,7 @@ class EditableA extends React.Component<EditableAProps, EditableAState> {
                canvas={this.props.canvas}
                editing={this.state.editing}
                open={this.props.open}
+               onDelete={this.props.onDelete}
                onEditBox={this._startEdit('box')}
                onSaveBox={async rect => {
                  await f({variables: {...prettyRect(rect), annotation: this.props.annotation.id}})
@@ -663,20 +674,51 @@ class EditableA extends React.Component<EditableAProps, EditableAState> {
   }
 }
 
+const DeleteAnnotation = ({id, app, onClose, project}) => (
+  <Mutation
+    mutation={DELETE_ANNOTATION}
+    refetchQueries={(): { query: *, variables: * }[] => ([{query: GET_APPLICATION, variables: {id: app, project}}])}>
+    {(mutate: MutationFunction<gt.DeleteAnnotation, gt.DeleteAnnotationVariables>, {error}) => {
+      return (
+        <Fragment>
+          <h1>Delete annotation</h1>
+          {error && <FormError>{error}</FormError>}
+          <p>
+            Are you sure that you want to delete the annotation? When deleted the
+            it can not be restored.
+          </p>
+          <ModalActions>
+            <Button positive onClick={async () => {
+              await mutate({variables: {id}})
+              onClose()
+            }}>
+              Yes
+            </Button>
+            <Button negative onClick={onClose}>
+              No
+            </Button>
+          </ModalActions>
+        </Fragment>)
+    }}
+  </Mutation>
+)
+
 type AnnotatorState = {|
   canvas: ?Can,
   open: ?string,
-  adding: boolean | Rect
+  adding: boolean | Rect,
+  modal: ?gt.GetApplication_application_annotations
 |}
 
 type AnnotatorProps = {|
   app: gt.GetProject_project_applications,
   annotations: gt.GetApplication_application_annotations[],
+  onDelete?: gt.GetApplication_application_annotations => any,
   project: string,
 |}
 
 class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
-  state = {canvas: null, open: null, adding: false}
+  state = {canvas: null, open: null, adding: false, modal: null}
   _ref: ?HTMLImageElement
   _onLoad = (evt) => {
     this._load(evt.target)
@@ -728,6 +770,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
             project={this.props.project}
             annotation={annotation}
             canvas={canvas}
+            onDelete={modal => this.setState({modal})}
             app={this.props.app}
             open={!this.state.adding && this.state.open === annotation.id}
             onClose={this._close}
@@ -772,6 +815,11 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
         })}>
           {!this.state.adding ? <PlusIcon /> : <CloseIcon />}
         </Adder>
+        {this.state.modal && (
+          <Modal>
+            <DeleteAnnotation id={this.state.modal.id} app={this.props.app.id} project={this.props.project} onClose={() => this.setState({modal: null})}/>
+          </Modal>
+        )}
       </React.Fragment>
     )
   }

@@ -111,13 +111,13 @@ class AddProject extends React.Component<{ onSuccess?: (id: string) => any }, { 
   }
 }
 
-
 class EditApplication extends React.Component<{ id: string, type: gt.ApplicationType, name: string, project: string, onClose: () => any }, { value: string, type: gt.ApplicationType }> {
   state = {value: this.props.name, type: this.props.type}
   refetch: { query: DocumentNode, variables?: {} }[] = [{
     query: GET_PROJECT,
     variables: {id: this.props.project}
   }]
+
   render () {
 
     return (
@@ -180,7 +180,6 @@ class EditApplication extends React.Component<{ id: string, type: gt.Application
     )
   }
 }
-
 
 class EditReport extends React.Component<{ id: string, name: string, project: string, onClose: () => any }, { value: string }> {
   state = {value: this.props.name}
@@ -345,6 +344,7 @@ const DeleteApplication = ({id, name, onClose, project}) => (
     }}
   </Mutation>
 )
+
 
 const DeleteReport = ({id, name, onClose, project}) => (
   <Mutation
@@ -634,7 +634,8 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         ]}
                       </TopNav>
                       <ContentView>
-                        <Screenshot app={app} project={project.id} />
+                        <Screenshot
+                          app={app} project={project.id} />
                       </ContentView>
                     </Content>
                   )
@@ -681,8 +682,18 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
                         onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
                         onUploadApplication={() => this.setState({modal: {kind: 'uploadApplication'}})}
-                        onEditApplication={application => this.setState({modal: {kind: 'editApplication', application}})}
-                        onDeleteApplication={application => this.setState({modal: {kind: 'deleteApplication', application}})}
+                        onEditApplication={application => this.setState({
+                          modal: {
+                            kind: 'editApplication',
+                            application
+                          }
+                        })}
+                        onDeleteApplication={application => this.setState({
+                          modal: {
+                            kind: 'deleteApplication',
+                            application
+                          }
+                        })}
                       >
                         {project}
                       </Project>

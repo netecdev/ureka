@@ -236,7 +236,7 @@ const Mutation = {
     }
     await db.deleteFileByProject(project._id)
     await db.deleteReportByProject(project._id)
-    // TODO delete annotations
+    await db.deleteAnnotationByProject(project._id)
     return await db.deleteProject(project._id)
   },
   async deleteReport (_, {id}, {db}) {
@@ -255,8 +255,15 @@ const Mutation = {
     }
     const res = await db.deleteApplication(i)
     await db.deleteFileByApplication(i)
-    // TODO delete annotations
+    await db.deleteAnnotationByApp(i)
     return res
+  },
+  async deleteAnnotation (_, {id}, {db}) {
+    const i = db.id(id)
+    if (!i) {
+      return {deleted: 0}
+    }
+    return db.deleteAnnotation(i)
   },
   async updateProject (_, {id, name}, {db}) {
     const p = await db.projectByPublicId(id)
