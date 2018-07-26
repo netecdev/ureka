@@ -508,8 +508,9 @@ class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'cre
   state = {modal: null, sesh: 0}
 
   render () {
+    // TODO fix pagination
     return (
-      <Query query={GET_PROJECTS} ssr variables={{first: 10}}>
+      <Query query={GET_PROJECTS} ssr>
         {({loading, error, data}: QueryRenderProps<gt.GetProjects, gt.GetProjectsVariables>) => {
           if (loading || error) {
             return null

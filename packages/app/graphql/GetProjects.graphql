@@ -1,5 +1,5 @@
 query GetProjects($after: Cursor) {
-    projects(first: 10, after: $after){
+    projects(first: 100, after: $after){
         edges {
             node {
                 id
