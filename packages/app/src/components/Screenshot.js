@@ -359,13 +359,13 @@ class A extends React.Component<AProps> {
 }
 
 const ClickCatcher = styled.div`
-  z-index: 15;
+  z-index: ${({closer}) => closer ? 1 : 15};
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  cursor: crosshair;
+  cursor: ${({closer}) => closer ? 'initial' : 'crosshair'};
 `
 
 const ImageContainer = styled.div`
@@ -866,6 +866,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
     return (
       <React.Fragment>
         <Helmet title={this.props.app.name}/>
+        <ClickCatcher closer onClick={this._close}/>
         <C1>
           <C11>
             <ImageContainer adding={this.state.adding}>
