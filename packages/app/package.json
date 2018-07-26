@@ -49,7 +49,7 @@
     "test": "npm run gen:graphql && flow .",
     "dev": "npm run dev:client & npm run dev:server",
     "dev:client": "webpack-dev-server --config webpack.config.dev.js  --hot",
-    "dev:server": "nodemon -V --exec babel-node src/server.js",
+    "dev:server": "babel-node src/server.js",
     "gen:graphql-schema": "apollo-codegen introspect-schema ./graphql/schema.graphqls --output graphql/schema.graphqls.json",
     "gen:graphql-flow": "apollo-codegen generate graphql/*.graphql --schema graphql/schema.graphqls.json --target flow --output graphql/index.js",
     "gen:graphql": "npm run gen:graphql-schema && npm run gen:graphql-flow"

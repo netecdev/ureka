@@ -4,7 +4,7 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { DesktopIcon, DocIcon, EditIcon, MobileIcon, TrashIcon, UploadIcon } from './Icons'
 import { Action, Container, Header, P, Title } from './Content'
-import { Item, ItemLink, List } from './List'
+import { EmptyItem, Item, ItemLink, List } from './List'
 import { wrapClick } from '../utils'
 import * as gt from '../../graphql'
 
@@ -52,6 +52,11 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
       }
     </Header>
     <List>
+      {!project.applications.length && (
+        <EmptyItem>
+          No applications added
+        </EmptyItem>)}
+
       {project.applications.map(node => (
         <Item key={node.id}>
           <ItemLink to={`/projects/${project.id}/apps/${node.id}`}>
@@ -101,6 +106,10 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
       }
     </Header>
     <List>
+      {!project.reports.length && (
+        <EmptyItem>
+          No reports added
+        </EmptyItem>)}
       {
         project
           .reports

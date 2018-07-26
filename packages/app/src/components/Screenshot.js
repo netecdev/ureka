@@ -16,6 +16,8 @@ import { ModalActions } from './Modal'
 import Modal from './Modal'
 import ReactMarkdown from 'react-markdown'
 
+// TODO fix loading and error handling
+
 type Can = {|
   width: number,
   offsetLeft: number

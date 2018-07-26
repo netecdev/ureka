@@ -9,6 +9,14 @@ export const List = styled.ul`
   list-style-type: none;
 `
 
+export const EmptyItem = styled.li`
+  text-align: center;
+  line-height: 4em;
+  color: #7f7f7f;
+  font-family: "Roboto", sans-serif;
+  
+`
+
 export const ItemLink = styled(NavLink)`
   display: flex;
   flex-grow: 1;

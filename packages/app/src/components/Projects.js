@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react'
 import { Action, Container, Header, Title } from './Content'
-import { Item, ItemLink, List } from './List'
+import { EmptyItem, Item, ItemLink, List } from './List'
 import { AddIcon, EditIcon, ProjectIcon, TrashIcon } from './Icons'
 import styled from 'styled-components'
 import * as gt from '../../graphql'
@@ -35,6 +35,10 @@ const s: React.ComponentType<Props> =
         }
       </Header>
       <List>
+        {!children.length && (
+          <EmptyItem>
+            No projects created
+          </EmptyItem>)}
         {children.map(({node}) => (
           <Item key={node.id}>
             <ItemLink to={`${url}/${node.id}`}>

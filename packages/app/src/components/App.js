@@ -28,6 +28,8 @@ import Report from './Report'
 import { DesktopIcon, MobileIcon } from './Icons'
 import Screenshot from './Screenshot'
 
+// TODO fix loading and error handling
+
 injectGlobal`
   body {
     background-color: #F5F5F5;
