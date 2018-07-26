@@ -9,6 +9,7 @@ ADD . /app
 WORKDIR /app
 
 RUN addgroup -S buddy \
+&&  echo "version: $VERSION" >> config/local.yml \
 &&  adduser -S -g buddy buddy \
 &&  chown -R buddy /app
 
