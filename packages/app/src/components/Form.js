@@ -38,19 +38,6 @@ export const TextArea = styled.textarea`
   
 `
 
-export const Label = styled.label`
-  line-height: 1.5em;
-  padding-top: 0.5em;
-  font-weight: 700;
-  color: #363636;
-  display: block;
-  ${Input}, ${TextArea} {
-    margin-top: 0;
-  }
-`
-
-export const FauxLabel = Label.withComponent('div')
-
 export const Buttons = styled.div`
   ${Button} {
     margin-top: 2em;
@@ -99,9 +86,23 @@ export const FormError = styled(({children, ...props}) => (<div {...props}>{chil
 export const Selectables = styled.div`
   ${Selectable} {
   }
+  margin-top: 2.5em;
   flex-wrap: wrap;
   display: flex;
 `
+
+export const Label = styled.label`
+  line-height: 1.5em;
+  padding-top: 0.5em;
+  font-weight: 700;
+  color: #363636;
+  display: block;
+  ${Input}, ${TextArea}, ${Selectables} {
+    margin-top: 0;
+  }
+`
+
+export const FauxLabel = Label.withComponent('div')
 
 export default styled.form`
 `

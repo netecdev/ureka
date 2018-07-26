@@ -611,8 +611,12 @@ const DescBox = styled.div`
     font-family: Roboto, sans-serif;
     font-size: 0.8em;
   }
+  > ${Form} {
+    font-size: 0.8em;
+  }
   ${TextArea} {
-    min-height: 10em
+    min-height: 10em;
+    font-family: Roboto, sans-serif;
   }
 `
 
