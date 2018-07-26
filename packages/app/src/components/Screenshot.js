@@ -37,9 +37,9 @@ const annotateColors = {
     activeBackground: 'rgba(255, 0, 0, 0.5)'
   },
   FUNCTIONALITY: {
-    foreground: '#ff0',
-    background: 'rgba(255, 255, 0, 0.3)',
-    activeBackground: 'rgba(255, 255, 0, 0.5)'
+    foreground: '#ffb648',
+    background: 'rgba(255, 182, 72, 0.3)',
+    activeBackground: 'rgba(255, 182, 72, 0.5)'
   },
   USABILITY: {
     foreground: '#f0f',
