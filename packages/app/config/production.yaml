@@ -1,0 +1,11 @@
+mongo:
+  url: mongodb://mongodb-mongodb-replicaset-0.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017,mongodb-mongodb-replicaset-1.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017,mongodb-mongodb-replicaset-2.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017/ureka?replicaSet=rs0
+
+
+api:
+  server:
+    http: http://localhost:1337
+  client:
+    http: https://ureka.budde377.io
+    ws: wss://ureka.budde377.io
+
