@@ -7,6 +7,7 @@ import { Action, Container, Header, P, Title } from './Content'
 import { EmptyItem, Item, ItemLink, List } from './List'
 import { wrapClick } from '../utils'
 import * as gt from '../../graphql'
+import { Helmet } from 'react-helmet'
 
 const Link = styled.div`
   text-align: center;
@@ -40,6 +41,7 @@ type Ps = {
 
 const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project}: Ps) => (
   <Container className={className}>
+    <Helmet title={project.name}/>
     <Header>
       Applications
       {

@@ -6,6 +6,7 @@ import { AddIcon, EditIcon, ProjectIcon, TrashIcon } from './Icons'
 import styled from 'styled-components'
 import * as gt from '../../graphql'
 import { wrapClick } from '../utils'
+import { Helmet } from 'react-helmet'
 
 export type OnAddProjectF = () => any
 export type OnDeleteProjectF = (p: gt.GetProjects_projects_edges_node) => any
@@ -23,6 +24,7 @@ type Props = {
 const s: React.ComponentType<Props> =
   styled(({className, children, onAddProject, onDeleteProject, onEditProject, url}: Props) => (
     <Container className={className}>
+      <Helmet title={'Projects'}/>
       <Header>
         Current projects
         {

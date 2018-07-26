@@ -15,6 +15,7 @@ import { Fragment } from 'react'
 import { ModalActions } from './Modal'
 import Modal from './Modal'
 import ReactMarkdown from 'react-markdown'
+import { Helmet } from 'react-helmet'
 
 // TODO fix loading and error handling
 
@@ -864,6 +865,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   render () {
     return (
       <React.Fragment>
+        <Helmet title={this.props.app.name}/>
         <C1>
           <C11>
             <ImageContainer adding={this.state.adding}>

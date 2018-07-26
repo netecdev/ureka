@@ -48,7 +48,6 @@
     "build": "npm run build:webpack && npm run build:server",
     "build:webpack": "NODE_ENV=production webpack  --profile --no-colors --config webpack.config.js",
     "build:server": "NODE_ENV=production babel -d dist/server/src src -s && babel -d dist/server/graphql graphql -s",
-
     "test": "npm run gen:graphql && flow . && helm lint helm/*",
     "dev": "npm run dev:client & npm run dev:server",
     "dev:client": "webpack-dev-server --config webpack.config.dev.js  --hot",
@@ -57,7 +56,6 @@
     "gen:graphql-schema": "apollo-codegen introspect-schema ./graphql/schema.graphqls --output graphql/schema.graphqls.json",
     "gen:graphql-flow": "apollo-codegen generate graphql/*.graphql --schema graphql/schema.graphqls.json --target flow --output graphql/index.js",
     "gen:graphql": "npm run gen:graphql-schema && npm run gen:graphql-flow",
-
     "deploy": "npm run build && npm run build:docker && npm run publish:docker && npm run deploy:helm",
     "deploy:helm": "helm upgrade --wait --timeout 300 -i --set image.tag=${VERSION:-latest} ureka-app ./helm/app",
     "build:docker": "docker build -t budde377/ureka-app:${VERSION:-latest} .",
@@ -82,6 +80,7 @@
     "apollo-codegen": "^0.20.2",
     "babel-loader": "^8.0.0-beta.4",
     "babel-plugin-import-graphql": "^2.6.2",
+    "favicons": "^5.1.1",
     "graphql-tag": "^2.9.2",
     "nodemon": "^1.17.5",
     "react-hot-loader": "^4.3.3",

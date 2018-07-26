@@ -27,6 +27,7 @@ import Project from './Project'
 import Report from './Report'
 import { DesktopIcon, MobileIcon } from './Icons'
 import Screenshot from './Screenshot'
+import { Helmet } from 'react-helmet'
 
 // TODO fix loading and error handling
 
@@ -663,6 +664,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         ]}
                       </TopNav>
                       <ContentView>
+                        <Helmet title={report.name}/>
                         <Report url={report.document.url} />
                       </ContentView>
                     </Content>
@@ -739,6 +741,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
 
 export default () => (
   <Container>
+    <Helmet title={'Ureka'}/>
     <Switch>
       <Route path={'/projects/:project'} component={ProjectW} />
       <Route path={'/projects'} component={ProjectsW} />
