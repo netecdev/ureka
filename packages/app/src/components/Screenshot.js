@@ -677,20 +677,20 @@ class EditableDescription extends React.Component<EditableDescriptionProps, { ed
                 <Selectable
                   selected={this.state.type === 'USABILITY'}
                   onClick={() => this.setState({type: 'USABILITY'})}>
-                  <input type={'checkbox'} checked={this.state.type === 'USABILITY'} />
+                  <input type={'radio'} checked={this.state.type === 'USABILITY'} />
                   Usability
                 </Selectable>
                 <Selectable selected={this.state.type === 'DESIGN'} onClick={() => this.setState({type: 'DESIGN'})}>
-                  <input type={'checkbox'} checked={this.state.type === 'DESIGN'} />
+                  <input type={'radio'} checked={this.state.type === 'DESIGN'} />
                   Design
                 </Selectable>
                 <Selectable selected={this.state.type === 'FUNCTIONALITY'}
                             onClick={() => this.setState({type: 'FUNCTIONALITY'})}>
-                  <input type={'checkbox'} checked={this.state.type === 'FUNCTIONALITY'} />
+                  <input type={'radio'} checked={this.state.type === 'FUNCTIONALITY'} />
                   Functionality
                 </Selectable>
                 <Selectable selected={this.state.type === 'LANGUAGE'} onClick={() => this.setState({type: 'LANGUAGE'})}>
-                  <input type={'checkbox'} checked={this.state.type === 'LANGUAGE'} />
+                  <input type={'radio'} checked={this.state.type === 'LANGUAGE'} />
                   Language
                 </Selectable>
               </Selectables>

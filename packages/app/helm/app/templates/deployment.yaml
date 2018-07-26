@@ -27,9 +27,6 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
-          env:
-            - name: 'PORT'
-              key: '3000'
           livenessProbe:
             httpGet:
               path: /
