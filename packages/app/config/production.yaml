@@ -6,6 +6,6 @@ api:
   server:
     http: http://localhost:1337
   client:
-    http: https://ureka.budde377.io
-    ws: wss://ureka.budde377.io
+    http: https://app.ureka.budde377.io
+    ws: wss://app.ureka.budde377.io
 

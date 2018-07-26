@@ -48,14 +48,19 @@
     "build:webpack": "NODE_ENV=production webpack  --progress --profile --no-colors --config webpack.config.js",
     "build:server": "NODE_ENV=production babel -d dist/server/src src -s && babel -d dist/server/graphql graphql -s",
     "build": "npm run build:webpack && npm run build:server",
-    "test": "npm run gen:graphql && flow .",
+    "test": "npm run gen:graphql && flow . && helm lint helm/*",
     "dev": "npm run dev:client & npm run dev:server",
     "dev:client": "webpack-dev-server --config webpack.config.dev.js  --hot",
     "dev:server": "babel-node src/server.js",
     "start": "NODE_ENV=production node dist/server/src/server.js",
     "gen:graphql-schema": "apollo-codegen introspect-schema ./graphql/schema.graphqls --output graphql/schema.graphqls.json",
     "gen:graphql-flow": "apollo-codegen generate graphql/*.graphql --schema graphql/schema.graphqls.json --target flow --output graphql/index.js",
-    "gen:graphql": "npm run gen:graphql-schema && npm run gen:graphql-flow"
+    "gen:graphql": "npm run gen:graphql-schema && npm run gen:graphql-flow",
+
+    "deploy": "npm run build && npm run build:docker && npm run publish:docker && npm run deploy:helm",
+    "deploy:helm": "helm upgrade --wait --timeout 300 -i --set image.tag=${VERSION:-latest} ureka-app ./helm/app",
+    "build:docker": "docker build -t budde377/ureka-app:${VERSION:-latest} .",
+    "publish:docker": "docker push budde377/ureka-app:${VERSION:-latest}"
   },
   "nodemonConfig": {
     "watch": [
