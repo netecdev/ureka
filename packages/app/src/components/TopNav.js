@@ -3,6 +3,7 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
 import { Route, Switch } from 'react-router'
+import type { HtmlConfig } from './Html'
 
 const Header = styled.h1`
   margin: 0;
@@ -53,28 +54,80 @@ const BreadCrumb = styled(NavLink)`
     }
   } 
 `
-type Bc = {| type?: string, title: string, to: string |}
-const TopNav = ({className, children}: { className: string, children: Bc[] }) => (
-  <div className={className}>
-    {children.map((b, i) => (
-      <React.Fragment key={i}>
-        {i ? <Divider /> : null}
-        <BreadCrumb to={b.to} exact activeClassName={'active'}>
-          <Type>
-            {b.type}
-          </Type>
-          <Header>
-            {b.title}
-          </Header>
-        </BreadCrumb>
-      </React.Fragment>
-    ))}
-  </div>
-)
 
-const s: React.ComponentType<{ children: Bc[] }> = styled(TopNav)`
+const Avatar = styled(({className}) => (
+  <div className={className} />
+))`
+  height: 3em;
+  width: 3em;
+  border-radius: 1.5em;
+  background-position: 50% 50%;
+  background-size: cover;
+  background: ${({accessToken}) => `url(${accessToken.idToken.payload.picture})`};
+`
+
+const Name = styled.div`
+  padding-right: 1em;
+  color: #5d5d5d;
+  font-family: Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  a {
+    font-size: 0.8em;
+    color: #3c8ac1;
+  }
+`
+
+const User = styled(({accessToken, className}) => (
+  <div className={className}>
+    <Name>
+      <div>
+      {accessToken.idToken.payload.name}
+      </div>
+      <a href={'/auth/logout'}>
+        (log out)
+      </a>
+    </Name>
+    <Avatar accessToken={accessToken} />
+  </div>
+))`
+  padding: 0 2em;
+  height: 5.5em;
+  display: flex;
+  align-items: center;
+`
+
+const Crumbs = styled.div``
+
+type Bc = {| type?: string, title: string, to: string |}
+const TopNav = ({className, children, config}: { className: string, children: Bc[], config: HtmlConfig }) => {
+  return (
+    <div className={className}>
+      <Crumbs>
+        {children.map((b, i) => (
+          <React.Fragment key={i}>
+            {i ? <Divider /> : null}
+            <BreadCrumb to={b.to} exact activeClassName={'active'}>
+              <Type>
+                {b.type}
+              </Type>
+              <Header>
+                {b.title}
+              </Header>
+            </BreadCrumb>
+          </React.Fragment>
+        ))}
+      </Crumbs>
+      {config.accessToken && <User accessToken={config.accessToken} />}
+    </div>
+  )
+}
+
+const s: React.ComponentType<{ children: Bc[], config: HtmlConfig }> = styled(TopNav)`
   background-color: #ffffff;
   height: 5.5em;
-  
+  display: flex;
+  justify-content: space-between;
 `
 export default s

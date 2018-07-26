@@ -14,15 +14,23 @@ import koaBody from 'koa-bodyparser'
 import Db from './db'
 import files from './middleware/files'
 import db from './middleware/db'
+import auth from './middleware/auth'
+import session from 'koa-session'
 
 const app = new Koa()
+app.keys = config.get('keys')
 
 app.use(serve(path.join('dist', 'client'), {maxage: 1000 * 60 * 60 * 24})) // Cache 1d
 app.use(serve('public', {maxage: 1000 * 60 * 60 * 24 * 7})) // Cache 1w
 app.use(cors())
 app.use(koaBody())
+app.use(session({
+  key: 'ureka:sesh',
+  maxAge: 86400000
+}, app));
 app.use(db())
 app.use(graphql())
+app.use(auth())
 app.use(files())
 app.use(appM())
 

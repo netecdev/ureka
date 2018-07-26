@@ -18,17 +18,18 @@ type Props = {
   onDeleteProject?: OnDeleteProjectF,
   onEditProject?: OnEditProjectF,
   children: gt.GetProjects_projects_edges[],
-  url: string
+  url: string,
+  isAdmin: bool
 }
 
 const s: React.ComponentType<Props> =
-  styled(({className, children, onAddProject, onDeleteProject, onEditProject, url}: Props) => (
+  styled(({className, children, onAddProject, onDeleteProject, onEditProject, url, isAdmin}: Props) => (
     <Container className={className}>
-      <Helmet title={'Projects'}/>
+      <Helmet title={'Projects'} />
       <Header>
         Current projects
         {
-          onAddProject
+          (isAdmin && onAddProject)
           && (
             <Action onClick={wrapClick(onAddProject)}>
               <AddIcon />
@@ -48,19 +49,21 @@ const s: React.ComponentType<Props> =
               <Title>
                 {node.name}
               </Title>
-              {onEditProject
-              && (
-                <Action onClick={wrapClick(() => onEditProject(node))}>
-                  <EditIcon />
-                </Action>
-              )
+              {
+                (isAdmin && onEditProject)
+                && (
+                  <Action onClick={wrapClick(() => onEditProject(node))}>
+                    <EditIcon />
+                  </Action>
+                )
               }
-              {onDeleteProject
-              && (
-                <Action color={'red'} onClick={wrapClick(() => onDeleteProject(node))}>
-                  <TrashIcon />
-                </Action>
-              )}
+              {
+                (isAdmin && onDeleteProject)
+                && (
+                  <Action color={'red'} onClick={wrapClick(() => onDeleteProject(node))}>
+                    <TrashIcon />
+                  </Action>
+                )}
             </ItemLink>
           </Item>
         ))}

@@ -311,6 +311,7 @@ type AProps = {|
   onDelete?: () => any,
   onClick?: () => any,
   onEdit?: () => any,
+  isAdmin: bool,
   onSave?: (rect: Rect) => any
 |}
 
@@ -338,7 +339,7 @@ class A extends React.Component<AProps> {
             {...{x, offsetLeft, y, width, height, scale}}
             onClick={this.props.onClick}
             active={this.props.open}>
-            {this.props.open &&
+            {(this.props.open && this.props.isAdmin) &&
             (<AnnotateActionIcons>
               <Action onClick={e => {
                 e.stopPropagation()
@@ -416,6 +417,7 @@ type CreatorAProps = {|
   width: number,
   height: number,
   canvas: Can,
+  isAdmin: bool,
   onCreate?: string => any,
   onCancel?: () => any,
   project: string
@@ -450,6 +452,7 @@ class CreatorA extends React.Component<CreatorAProps, CreatorAState> {
         {(f: MutationFunction<gt.AddAnnotation, gt.AddAnnotationVariables>) => {
           return (
             <A
+              isAdmin={this.props.isAdmin}
               open
               onStopEdit={() => this.props.onCancel && this.props.onCancel()}
               onSave={async (rect) => {
@@ -474,6 +477,7 @@ type EditableAProps = {|
   canvas: Can,
   open?: boolean,
   onOpen?: () => any,
+  isAdmin: bool,
   onClose?: () => any,
   onDelete?: () => any,
   project: string,
@@ -502,25 +506,27 @@ class EditableA extends React.Component<EditableAProps, EditableAState> {
       <Mutation mutation={UPDATE_ANNOTATION} refetchQueries={this.rf}>
         {(f: MutationFunction<gt.UpdateAnnotation, gt.UpdateAnnotationVariables>) => {
           return (
-            <A screenshot={this.props.app.screenshot}
-               canvas={this.props.canvas}
-               editing={this.state.editing}
-               onDelete={this.props.onDelete}
-               onEdit={() => this.setState({editing: true})}
-               onSave={async rect => {
-                 await f({variables: {...prettyRect(rect), annotation: this.props.annotation.id}})
-                 this.setState({editing: false})
-               }}
-               open={this.props.open}
-               onStopEdit={() => this.setState({editing: false})}
-               onClick={() => {
-                 if (this.props.open) {
-                   this.props.onClose && this.props.onClose()
-                 } else {
-                   this.props.onOpen && this.props.onOpen()
-                 }
-               }}
-               annotation={this.props.annotation} />
+            <A
+              isAdmin={this.props.isAdmin}
+              screenshot={this.props.app.screenshot}
+              canvas={this.props.canvas}
+              editing={this.state.editing}
+              onDelete={this.props.onDelete}
+              onEdit={() => this.setState({editing: true})}
+              onSave={async rect => {
+                await f({variables: {...prettyRect(rect), annotation: this.props.annotation.id}})
+                this.setState({editing: false})
+              }}
+              open={this.props.open}
+              onStopEdit={() => this.setState({editing: false})}
+              onClick={() => {
+                if (this.props.open) {
+                  this.props.onClose && this.props.onClose()
+                } else {
+                  this.props.onOpen && this.props.onOpen()
+                }
+              }}
+              annotation={this.props.annotation} />
           )
         }}
       </Mutation>
@@ -581,6 +587,7 @@ type EditableDescriptionProps = {|
   open: boolean,
   app: string,
   project: string,
+  isAdmin: bool,
   onDelete?: () => any,
   annotation: gt.GetApplication_application_annotations,
   canvas: Can,
@@ -665,7 +672,7 @@ class EditableDescription extends React.Component<EditableDescriptionProps, { ed
       return (
         <React.Fragment>
           <DescBox>
-            <EditableLabel type={this.state.type}/>
+            <EditableLabel type={this.state.type} />
             <DescRM>
               <ReactMarkdown source={this.state.description} />
             </DescRM>
@@ -711,23 +718,25 @@ class EditableDescription extends React.Component<EditableDescriptionProps, { ed
     return (
       <React.Fragment>
         <DescBox>
-          <EditableLabel type={this.props.annotation.type}/>
+          <EditableLabel type={this.props.annotation.type} />
           <DescRM>
             <ReactMarkdown source={this.props.annotation.description} />
           </DescRM>
         </DescBox>
-        <AnnotateActionIcons>
-          <Action onClick={() => this.setState({
-            editing: true,
-            description: this.props.annotation.description,
-            type: this.props.annotation.type
-          })}>
-            <EditIcon />
-          </Action>
-          <Action red onClick={this.props.onDelete}>
-            <TrashIcon />
-          </Action>
-        </AnnotateActionIcons>
+        {this.props.isAdmin && (
+          <AnnotateActionIcons>
+            <Action onClick={() => this.setState({
+              editing: true,
+              description: this.props.annotation.description,
+              type: this.props.annotation.type
+            })}>
+              <EditIcon />
+            </Action>
+            <Action red onClick={this.props.onDelete}>
+              <TrashIcon />
+            </Action>
+          </AnnotateActionIcons>
+        )}
       </React.Fragment>
     )
   }
@@ -765,6 +774,7 @@ type AnnotatorProps = {|
   app: gt.GetProject_project_applications,
   annotations: gt.GetApplication_application_annotations[],
   project: string,
+  isAdmin: bool
 |}
 
 class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
@@ -817,6 +827,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
       .annotations
       .map((annotation) => (
           <EditableA
+            isAdmin={this.props.isAdmin}
             project={this.props.project}
             annotation={annotation}
             onDelete={() => this.setState({modal: annotation})}
@@ -835,6 +846,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
       .annotations
       .map((annotation) => (
           <EditableDescription
+            isAdmin={this.props.isAdmin}
             project={this.props.project}
             app={this.props.app.id}
             onDelete={() => this.setState({modal: annotation})}
@@ -853,6 +865,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
     if (typeof this.state.adding === 'boolean') return null
     return (
       <CreatorA
+        isAdmin={this.props.isAdmin}
         project={this.props.project}
         onCancel={() => this.setState({adding: false})}
         onCreate={open => this.setState({open, adding: false})}
@@ -865,8 +878,8 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   render () {
     return (
       <React.Fragment>
-        <Helmet title={this.props.app.name}/>
-        <ClickCatcher closer onClick={this._close}/>
+        <Helmet title={this.props.app.name} />
+        <ClickCatcher closer onClick={this._close} />
         <C1>
           <C11>
             <ImageContainer adding={this.state.adding}>
@@ -881,12 +894,16 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
               />
               <KeyGrapper code={'Escape'} on={this._close} />
             </ImageContainer>
-            <Adder onClick={() => this.setState(({adding}) => adding ? {adding: false, open: null} : {
-              adding: true,
-              open: null
-            })}>
-              {!this.state.adding ? <PlusIcon /> : <CloseIcon />}
-            </Adder>
+            {
+              this.props.isAdmin &&
+              (
+                <Adder onClick={() => this.setState(({adding}) => adding ? {adding: false, open: null} : {
+                  adding: true,
+                  open: null
+                })}>
+                  {!this.state.adding ? <PlusIcon /> : <CloseIcon />}
+                </Adder>
+              )}
           </C11>
           <C12>
             {this.state.canvas && this._renderAnnotationLabels(this.state.canvas)}
@@ -905,12 +922,12 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   }
 }
 
-export default ({app, project}: {| app: gt.GetProject_project_applications, project: string |}) => (
+export default ({app, project, isAdmin}: {| app: gt.GetProject_project_applications, project: string, isAdmin: bool |}) => (
   <React.Fragment key={app.id}>
     <Query query={GET_APPLICATION} variables={{id: app.id, project: project}}>
       {({data, error, loading}: QueryRenderProps<gt.GetApplication, gt.GetApplicationVariables>) => {
         const annotations = error || loading || !data || !data.application ? [] : data.application.annotations
-        return <Annotator app={app} annotations={annotations} project={project} />
+        return <Annotator isAdmin={isAdmin} app={app} annotations={annotations} project={project} />
       }}
     </Query>
   </React.Fragment>

@@ -36,16 +36,17 @@ type Ps = {
   onEditApplication?: OnEditApplication,
   onEditReport?: OnEditReport,
   children: gt.GetProject_project,
-  className?: string
+  className?: string,
+  isAdmin: bool
 }
 
-const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project}: Ps) => (
+const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, onUploadApplication, onUploadReport, onDeleteApplication, onDeleteReport, className, children: project, isAdmin}: Ps) => (
   <Container className={className}>
-    <Helmet title={project.name}/>
+    <Helmet title={project.name} />
     <Header>
       Applications
       {
-        onUploadApplication
+        (isAdmin && onUploadApplication)
         && (
           <Action onClick={wrapClick(() => onUploadApplication(project))}>
             <UploadIcon />
@@ -76,7 +77,7 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
               {node.name}
             </Title>
             {
-              onEditApplication
+              (isAdmin && onEditApplication)
               && (
                 <Action onClick={wrapClick(() => onEditApplication(node))}>
                   <EditIcon />
@@ -85,7 +86,7 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
             }
 
             {
-              onDeleteApplication
+              (isAdmin && onDeleteApplication)
               && (
                 <Action color='red' onClick={wrapClick(() => onDeleteApplication(node))}>
                   <TrashIcon />
@@ -99,7 +100,7 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
     <Header>
       Reports
       {
-        onUploadReport
+        (isAdmin && onUploadReport)
         && (
           <Action onClick={wrapClick(() => onUploadReport(project))}>
             <UploadIcon />
@@ -122,13 +123,13 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
                 <Title>
                   {node.name}
                 </Title>
-                {onEditReport
+                {(isAdmin && onEditReport)
                 && (
                   <Action onClick={wrapClick(() => onEditReport(node))}>
                     <EditIcon />
                   </Action>)}
                 {
-                  onDeleteReport
+                  (isAdmin && onDeleteReport)
                   && (
                     <Action color='red' onClick={wrapClick(() => onDeleteReport(node))}>
                       <TrashIcon />

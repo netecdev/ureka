@@ -2,3 +2,5 @@
 /graphql/*js
 /graphql/*json
 s
+
+config/local*

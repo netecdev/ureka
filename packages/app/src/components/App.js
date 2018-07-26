@@ -25,9 +25,10 @@ import DELETE_APPLICATION from '../../graphql/DeleteApplication.graphql'
 import type { DocumentNode } from 'graphql'
 import Project from './Project'
 import Report from './Report'
-import { DesktopIcon, MobileIcon } from './Icons'
+import { DesktopIcon, LogoIcon, MobileIcon } from './Icons'
 import Screenshot from './Screenshot'
 import { Helmet } from 'react-helmet'
+import type { HtmlConfig } from './Html'
 
 // TODO fix loading and error handling
 
@@ -348,7 +349,6 @@ const DeleteApplication = ({id, name, onClose, project}) => (
   </Mutation>
 )
 
-
 const DeleteReport = ({id, name, onClose, project}) => (
   <Mutation
     mutation={DELETE_REPORT}
@@ -510,6 +510,10 @@ class UploadReport extends React.Component<{ project: string, onClose: () => any
 class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'create' } | { kind: 'update', p: gt.GetProjects_projects_edges_node } | { kind: 'delete', p: gt.GetProjects_projects_edges_node }) }> {
   state = {modal: null, sesh: 0}
 
+  _isAdmin () {
+    return !!(this.props.config.accessToken && this.props.config.accessToken.isAdmin)
+  }
+
   render () {
     // TODO fix pagination
     return (
@@ -537,7 +541,7 @@ class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'cre
                 }
               </LeftNav>
               <Content>
-                <TopNav>
+                <TopNav config={this.props.config}>
                   {[
                     {
                       title: 'Projects',
@@ -548,6 +552,7 @@ class ProjectsW extends React.Component<*, { sesh: number, modal: ?({ kind: 'cre
                 </TopNav>
                 <ContentView>
                   <Projects
+                    isAdmin={this._isAdmin()}
                     url={this.props.match.url}
                     onDeleteProject={p => this.setState({modal: {kind: 'delete', p}})}
                     onEditProject={p => this.setState({modal: {kind: 'update', p}})}
@@ -584,6 +589,10 @@ type ProjectModal =
 
 class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
   state = {modal: null}
+
+  _isAdmin () {
+    return !!(this.props.config.accessToken && this.props.config.accessToken.isAdmin)
+  }
 
   render () {
     return (
@@ -623,7 +632,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                   if (!app) return null
                   return (
                     <Content>
-                      <TopNav>
+                      <TopNav config={this.props.config}>
                         {[
                           {
                             type: 'Project',
@@ -639,7 +648,9 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                       </TopNav>
                       <ContentView>
                         <Screenshot
-                          app={app} project={project.id} />
+                          isAdmin={this._isAdmin()}
+                          app={app}
+                          project={project.id} />
                       </ContentView>
                     </Content>
                   )
@@ -649,7 +660,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                   if (!report) return null
                   return (
                     <Content>
-                      <TopNav>
+                      <TopNav config={this.props.config}>
                         {[
                           {
                             type: 'Project',
@@ -664,7 +675,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                         ]}
                       </TopNav>
                       <ContentView>
-                        <Helmet title={report.name}/>
+                        <Helmet title={report.name} />
                         <Report url={report.document.url} />
                       </ContentView>
                     </Content>
@@ -672,7 +683,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                 }} />
                 <Route render={() => (
                   <Content>
-                    <TopNav>
+                    <TopNav config={this.props.config}>
                       {[
                         {
                           type: 'Project',
@@ -683,6 +694,7 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
                     </TopNav>
                     <ContentView>
                       <Project
+                        isAdmin={this._isAdmin()}
                         onEditReport={report => this.setState({modal: {kind: 'editReport', report}})}
                         onDeleteReport={report => this.setState({modal: {kind: 'deleteReport', report}})}
                         onUploadReport={() => this.setState({modal: {kind: 'uploadReport'}})}
@@ -739,13 +751,35 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
   }
 }
 
-export default () => (
-  <Container>
-    <Helmet title={'Ureka'}/>
-    <Switch>
-      <Route path={'/projects/:project'} component={ProjectW} />
-      <Route path={'/projects'} component={ProjectsW} />
-      <Redirect from={'/'} to={'/projects'} />
-    </Switch>
-  </Container>
-)
+const Fallback = styled(props => (
+  <div {...props}>
+    <LogoIcon />
+  </div>))`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  ${LogoIcon} {
+    height: 10em;
+    width: 10em;
+  }
+`
+
+export default ({config}: { config: HtmlConfig }) => {
+  const isAdmin = config.accessToken && config.accessToken.isAdmin
+  return (
+    <Container>
+      <Helmet title={'Ureka'} />
+      <Switch>
+        <Route path={'/projects/:project'} render={({match}) => <ProjectW {...{match}} config={config} />} />
+        {isAdmin ? <Route path={'/projects'} render={({match}) => <ProjectsW {...{match}} config={config} />} /> : null}
+        {isAdmin ? <Redirect from={'/'} to={'/projects'} /> : null}
+        <Route render={() => <Fallback />} />
+      </Switch>
+    </Container>
+  )
+}

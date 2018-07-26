@@ -2,7 +2,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { DesktopIcon, DocIcon, Icon, MobileIcon, ProjectIcon } from './Icons'
+import { DesktopIcon, DocIcon, Icon, LogoIcon, MobileIcon, ProjectIcon } from './Icons'
 
 const MenuLink = styled(NavLink)`
   padding: 0 1.25em;
@@ -46,7 +46,7 @@ const LogoName = styled.span`
 `
 const Logo = styled(NavLink)`
   text-decoration: none;
-  > svg {
+  > ${LogoIcon} {
     width: 1.7em;
     height: 1.7em;
     display: inline-block;
@@ -129,24 +129,7 @@ const LeftNav = ({className, children}: Props) => (
   <nav className={className}>
     <LogoContainer>
       <Logo to={'/'}>
-        <svg viewBox="0 0 214 214" version="1.1" xmlns="http://www.w3.org/2000/svg"
-             xmlnsXlink="http://www.w3.org/1999/xlink">
-          <g id="Symbols" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-            <g id="Logo">
-              <circle id="Mask" fill="#3AEFD4" cx="107" cy="107" r="107" />
-              <g id="Group" transform="translate(25.000000, 59.000000)">
-                <path
-                  d="M0,116.74253 L0,0 L165,0 L165,115.533121 C145.379965,139.617451 115.486376,155 82,155 C49.0775834,155 19.6279572,140.131217 8.8817842e-15,116.74253 Z"
-                  id="Combined-Shape" fill="#FFFFFF" />
-                <rect id="Rectangle-2" fill="#FFCDCD" x="50" y="55" width="105" height="24" />
-                <path
-                  d="M14,130.617477 L14,103 L83,103 L83,154.995424 C82.6670278,154.998472 82.3336923,155 82,155 C56.1750195,155 32.4868944,145.851034 14,130.617477 Z"
-                  id="Combined-Shape" fill="#95D9EA" />
-                <rect id="Rectangle-3" fill="#F7DD83" x="11" y="15" width="143" height="20" />
-              </g>
-            </g>
-          </g>
-        </svg>
+        <LogoIcon />
         <LogoName>
           ureka
         </LogoName>

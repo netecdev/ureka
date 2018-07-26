@@ -1,8 +1,9 @@
 // @flow
 import React from 'react'
+import type { AuthToken } from '../middleware/auth'
 
 export type HtmlConfig = {|
-  accessToken: ?string,
+  accessToken?: AuthToken,
   api: {|
     http: string,
     ws: string

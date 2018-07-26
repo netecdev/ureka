@@ -36,13 +36,13 @@ export default () => async (ctx: *, next: *) => {
       http: config.get('api.client.http'),
       ws: config.get('api.client.ws')
     },
-    accessToken: null
+    accessToken: ctx.session.authToken || undefined
   }
 
   const app = (
     <ApolloProvider client={client}>
       <StaticRouter location={ctx.url} context={context}>
-        <App />
+        <App config={conf} />
       </StaticRouter>
     </ApolloProvider>
   )

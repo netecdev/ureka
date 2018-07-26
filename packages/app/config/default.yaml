@@ -2,6 +2,8 @@
 port: 1337
 version: latest
 
+keys:
+  - key1
 
 api:
   server:
@@ -13,3 +15,15 @@ api:
 
 mongo:
   url: mongodb://localhost:27017/ureka?replicaSet=rs0
+
+auth0:
+  domain: ureka.eu.auth0.com
+  audience: https://app.ureka.io
+  scope: openid profile email
+  redirectUri: http://localhost:1338/auth/callback
+  clientId: ID
+  clientSecret: SECRET
+
+
+admins:
+  - budde377@gmail.com

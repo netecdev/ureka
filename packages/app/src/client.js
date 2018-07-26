@@ -17,7 +17,7 @@ const config: HtmlConfig = window.__CONFIG__
 
 function customFetch (uri, options) {
   if (config.accessToken) {
-    options.headers.authentication = `Bearer ${config.accessToken}`
+    options.headers.authentication = `Bearer ${config.accessToken.accessToken.token}`
   }
   return fetch(uri, options)
 }
@@ -32,7 +32,7 @@ const wsLink = new WebSocketLink({
   options: {
     reconnect: true,
     connectionParams: {
-      authToken: config.accessToken || ''
+      authToken: config.accessToken ? config.accessToken.accessToken.token : ''
     }
   }
 })
@@ -57,7 +57,7 @@ const root = window.document.getElementById('content')
 ReactDOM.hydrate(
   <ApolloProvider client={client}>
     <BrowserRouter>
-      <App />
+      <App config={config} />
     </BrowserRouter>
   </ApolloProvider>,
   root

@@ -42,3 +42,8 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+auth0:
+  clientId: AUTH0_CLIENT_ID
+  clientSecret: AUTH0_CLIENT_SECRET
