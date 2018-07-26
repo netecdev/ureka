@@ -108,6 +108,7 @@ declare module 'mongodb' {
     collation (options: CollationOptions): Cursor<TDoc>;
     next (): Promise<?TDoc>;
     sort(key: $Keys<TDoc> | Array<$Keys<TDoc>>, order: 1 | -1): Cursor<TDoc>;
+    sort(o: {[string]: -1 | 1}): Cursor<TDoc>;
     toArray (): Promise<Array<TDoc>>;
     count(): Promise<number>;
     skip(n: number): Cursor<TDoc>;

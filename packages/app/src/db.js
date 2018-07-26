@@ -440,7 +440,7 @@ export default class Db {
     return (await this._collectionsP)
       .applications
       .find({project})
-      .sort('created', 1)
+      .sort({type: 1, name: 1})
       .toArray()
 
   }
