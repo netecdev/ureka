@@ -897,7 +897,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
 }
 
 export default ({app, project}: {| app: gt.GetProject_project_applications, project: string |}) => (
-  <React.Fragment>
+  <React.Fragment key={app.id}>
     <Query query={GET_APPLICATION} variables={{id: app.id, project: project}}>
       {({data, error, loading}: QueryRenderProps<gt.GetApplication, gt.GetApplicationVariables>) => {
         const annotations = error || loading || !data || !data.application ? [] : data.application.annotations
