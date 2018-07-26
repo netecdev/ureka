@@ -147,7 +147,7 @@ const s: React.ComponentType<Ps> = styled((({onEditReport, onEditApplication, on
       is required. This means that the project will be visible to all with access to the link.
     </P>
     <Link>
-      https://ureka.io/projects/{project.id}
+      https://app.ureka.io/projects/{project.id}
     </Link>
   </Container>
 )))``
