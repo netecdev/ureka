@@ -7,3 +7,9 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 apt-get update
 apt-get install -y kubectl
+if [ ! -d ${HOME}/google-cloud-sdk ]; then
+  curl https://sdk.cloud.google.com | bash;
+fi
+
+echo $GCLOUD_KEY | base64 > ~/.secret.json
+gcloud auth activate-service-account --key-file ~/.secret.json
