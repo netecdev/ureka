@@ -12,9 +12,10 @@ if [ ! -d ~/google-cloud-sdk/lib ]; then
 fi
 
 
-echo $GCLOUD_KEY | base64 -D > ~/.secret.json
+echo $GCLOUD_KEY | base64 -d > ~/.secret.json
 ls -al ~/
 gcloud auth activate-service-account --key-file ~/.secret.json
+gcloud container clusters get-credentials the-moneymaker --zone europe-north1-a --project ureka-sebastian-tries
 
 # INSTALL HELM
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
