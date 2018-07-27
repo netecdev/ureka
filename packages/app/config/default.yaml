@@ -26,6 +26,9 @@ auth0:
 
 admins:
   - budde377@gmail.com
+  - sebastian@netec.dk
+  - victor@netec.dk
+  - kontakt@netec.dk
 
 redis:
   host: localhost
