@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 
 # INSTALL GOOGLE CLOUD SDK
 if [ ! -d ~/google-cloud-sdk/lib ]; then
@@ -12,6 +13,7 @@ fi
 
 
 echo $GCLOUD_KEY | base64 > ~/.secret.json
+ls -al ~/
 gcloud auth activate-service-account --key-file ~/.secret.json
 
 # INSTALL HELM
