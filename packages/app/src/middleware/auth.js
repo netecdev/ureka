@@ -96,7 +96,12 @@ router.get('/auth/callback', async (ctx, next) => {
   ctx.session.authState = null
   if (oldState === newState) {
     try {
-      ctx.session.authToken = await fetchAccessToken(code)
+      const token = await fetchAccessToken(code)
+      if (!token.isAdmin) {
+        ctx.redirect('/')
+        return
+      }
+      ctx.session.authToken = token
     } catch (err) {
       ctx.redirect('/')
       return

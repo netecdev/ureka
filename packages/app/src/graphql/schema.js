@@ -12,7 +12,8 @@ import { GraphQLUpload } from 'apollo-upload-server'
 import sizeOf from 'image-size'
 
 export type Context = {
-  db: Db
+  db: Db,
+  authorized: boolean,
 }
 
 type Resolver<Info, Args: {}, Res> = (info: Info, args: Args, context: Context) => Res | Promise<Res>
@@ -131,14 +132,16 @@ async function randomId (): Promise<string> {
 }
 
 const Mutation = {
-  async createProject (i, {name}, {db}) {
+  async createProject (i, {name}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const publicId = await randomId()
     const id = await db.createProject({name, publicId})
     const p = await db.project(id)
     if (!p) throw new Error('Internal error!')
     return p
   },
-  async createReport (i, args, {db}) {
+  async createReport (i, args, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const {stream, mimetype} = await args.file
     if (mimetype !== 'application/pdf') {
       throw new Error('Unsupported file type.')
@@ -166,7 +169,8 @@ const Mutation = {
     }
     return report
   },
-  async createApplication (i, args, {db}) {
+  async createApplication (i, args, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const {stream} = await args.file
     const project = await db.projectByPublicId(args.project)
     if (!project) {
@@ -206,7 +210,8 @@ const Mutation = {
     }
     return app
   },
-  async createAnnotation (i, args, {db}) {
+  async createAnnotation (i, args, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const id = db.id(args.application)
     const app = id && await db.application(id)
     if (!app) {
@@ -229,7 +234,8 @@ const Mutation = {
     }
     return ann
   },
-  async deleteProject (i, {id}, {db}) {
+  async deleteProject (i, {id}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const project = await db.projectByPublicId(id)
     if (!project) {
       return {deleted: 0}
@@ -239,7 +245,8 @@ const Mutation = {
     await db.deleteAnnotationByProject(project._id)
     return await db.deleteProject(project._id)
   },
-  async deleteReport (_, {id}, {db}) {
+  async deleteReport (_, {id}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(id)
     if (!i) {
       return {deleted: 0}
@@ -248,7 +255,8 @@ const Mutation = {
     await db.deleteFileByReport(i)
     return res
   },
-  async deleteApplication (_, {id}, {db}) {
+  async deleteApplication (_, {id}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(id)
     if (!i) {
       return {deleted: 0}
@@ -258,14 +266,16 @@ const Mutation = {
     await db.deleteAnnotationByApp(i)
     return res
   },
-  async deleteAnnotation (_, {id}, {db}) {
+  async deleteAnnotation (_, {id}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(id)
     if (!i) {
       return {deleted: 0}
     }
     return db.deleteAnnotation(i)
   },
-  async updateProject (_, {id, name}, {db}) {
+  async updateProject (_, {id, name}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const p = await db.projectByPublicId(id)
     if (!p) {
       throw new Error('Project not found')
@@ -281,7 +291,8 @@ const Mutation = {
     }
     return updatedP
   },
-  async updateReport (_, {id, name}, {db}) {
+  async updateReport (_, {id, name}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(id)
     const report = i && await db.report(i)
     if (!report) throw new Error('Report not found')
@@ -290,7 +301,8 @@ const Mutation = {
     if (!updated) throw new Error('Internal error')
     return updated
   },
-  async updateApplication (_, {id, name, type}, {db}) {
+  async updateApplication (_, {id, name, type}, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(id)
     const application = i && await db.application(i)
     if (!application) throw new Error('Application not found')
@@ -306,7 +318,8 @@ const Mutation = {
     if (!updated) throw new Error('Internal error')
     return updated
   },
-  async updateAnnotation (_, args, {db}) {
+  async updateAnnotation (_, args, {db, authorized}) {
+    if (!authorized) throw new Error('Not authorized')
     const i = db.id(args.id)
     const application = i && await db.annotation(i)
     if (!application) throw new Error('Annotation not found')

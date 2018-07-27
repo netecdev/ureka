@@ -6,13 +6,24 @@ import config from 'config'
 import schema, { type Context } from '../graphql/schema'
 import { apolloUploadKoa } from 'apollo-upload-server'
 import koaBody from 'koa-bodyparser'
-import Db from '../db'
+import { verifyToken } from '../utils/auth'
 
 const router = new KoaRouter()
 
+async function isAuthorized (ctx): Promise<boolean> {
+  const authHeader = ctx.request.header.authentication
+  if (!authHeader || !/Bearer .+/.exec(authHeader)) {
+    return false
+  }
+  const token = authHeader.substr(7).trim()
+  return await verifyToken(token)
+}
+
 async function ctxToContext (ctx): Promise<Context> {
+
   return {
-    db: ctx.db
+    db: ctx.db,
+    authorized: await isAuthorized(ctx)
   }
 }
 

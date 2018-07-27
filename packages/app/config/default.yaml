@@ -30,3 +30,14 @@ admins:
 redis:
   host: localhost
   port: 6379
+
+
+auth:
+  verify:
+    algorithms:
+      - RS256
+    audience: https://app.ureka.io
+    issuer: https://ureka.eu.auth0.com/
+  jwks:
+    strictSsl: true
+    jwksUri: https://ureka.eu.auth0.com/.well-known/jwks.json

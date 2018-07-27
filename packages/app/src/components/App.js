@@ -775,8 +775,8 @@ export default ({config}: { config: HtmlConfig }) => {
     <Container>
       <Helmet title={'Ureka'} />
       <Switch>
-        <Route path={'/projects/:project'} render={({match}) => <ProjectW {...{match}} config={config} />} />
-        {isAdmin ? <Route path={'/projects'} render={({match}) => <ProjectsW {...{match}} config={config} />} /> : null}
+        <Route path={'/projects/:project'} render={({match, history, location}) => <ProjectW {...{match, history, location}} config={config} />} />
+        {isAdmin ? <Route path={'/projects'} render={({match, history, location}) => <ProjectsW {...{match, history, location}} config={config} />} /> : null}
         {isAdmin ? <Redirect from={'/'} to={'/projects'} /> : null}
         <Route render={() => <Fallback />} />
       </Switch>

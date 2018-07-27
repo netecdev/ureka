@@ -17,6 +17,7 @@ import db from './middleware/db'
 import auth from './middleware/auth'
 import session from 'koa-session'
 import { RedisStore } from './utils/store'
+import { verifyToken } from './utils/auth'
 
 const app = new Koa()
 app.keys = [config.get('key')]
@@ -44,7 +45,8 @@ const server = app.listen(port, () => {
 
 async function onConnect (connectionParams): Promise<Context> {
   return {
-    db: new Db()
+    db: new Db(),
+    authorized: !!connectionParams.authToken && await verifyToken(connectionParams.authToken)
   }
 }
 
