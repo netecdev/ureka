@@ -760,10 +760,7 @@ class ShowLogin extends React.Component<{}, { show: bool }> {
   render () {
     return (
       <React.Fragment>
-        <KeyGrapper code={'Space'} on={last => {
-          console.log(last)
-          last < 500 && this.setState({show: true})
-        }} />
+        <KeyGrapper code={'Space'} on={last => last < 500 && this.setState({show: true})} />
         {this.state.show && <AB href={'/auth/login'}>Login</AB>}
       </React.Fragment>
     )
