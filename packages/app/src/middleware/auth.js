@@ -53,6 +53,9 @@ async function fetchAccessToken (code: string): Promise<AuthToken> {
 
     }
   )
+  if (!res.ok) {
+    throw new Error('Fetch failed')
+  }
   const {
     access_token: accessToken,
     id_token: idToken,
@@ -92,7 +95,12 @@ router.get('/auth/callback', async (ctx, next) => {
   const oldState = ctx.session.authState
   ctx.session.authState = null
   if (oldState === newState) {
-    ctx.session.authToken = await fetchAccessToken(code)
+    try {
+      ctx.session.authToken = await fetchAccessToken(code)
+    } catch (err) {
+      ctx.redirect('/')
+      return
+    }
   }
   ctx.redirect('/')
 })
