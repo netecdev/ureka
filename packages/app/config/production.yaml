@@ -13,7 +13,7 @@ api:
 
 auth0:
   audience: https://app.ureka.io
-  redirectUri: https://app.ureka.budde377.io/auth/callback
+  redirectUri: https://app.ureka.io/auth/callback
 
 redis:
   host: redis-master
