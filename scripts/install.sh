@@ -13,7 +13,7 @@ fi
 
 
 echo $GCLOUD_KEY | base64 -d > ~/.secret.json
-ls -al ~/
+
 gcloud auth activate-service-account --key-file ~/.secret.json
 gcloud container clusters get-credentials the-moneymaker --zone europe-north1-a --project ureka-sebastian-tries
 
