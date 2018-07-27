@@ -5,7 +5,7 @@ set -e
 # INSTALL GOOGLE CLOUD SDK
 if [ ! -d ~/google-cloud-sdk/lib ]; then
   rm -r ~/google-cloud-sdk
-  curl https://sdk.cloud.google. > ~/gcloud.sh
+  curl https://sdk.cloud.google.com > ~/gcloud.sh
   chmod +x ~/gcloud.sh
   ~/gcloud.sh --install-dir=${HOME} --disable-prompts > /dev/null
   ~/google-cloud-sdk/bin/gcloud components install kubectl --quiet;
