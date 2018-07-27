@@ -36,23 +36,23 @@ const fadeInKf = keyframes`
 const annotateColors = {
   DESIGN: {
     foreground: '#f00',
-    background: 'rgba(255, 0, 0, 0.3)',
-    activeBackground: 'rgba(255, 0, 0, 0.5)'
+    background: 'rgba(255, 0, 0, 0)',
+    activeBackground: 'rgba(255, 0, 0, 0.3)'
   },
   FUNCTIONALITY: {
     foreground: '#ffb648',
-    background: 'rgba(255, 182, 72, 0.3)',
-    activeBackground: 'rgba(255, 182, 72, 0.5)'
+    background: 'rgba(255, 182, 72, 0)',
+    activeBackground: 'rgba(255, 182, 72, 0.3)'
   },
   USABILITY: {
     foreground: '#f0f',
-    background: 'rgba(255, 0, 255, 0.3)',
-    activeBackground: 'rgba(255, 0, 255, 0.5)'
+    background: 'rgba(255, 0, 255, 0)',
+    activeBackground: 'rgba(255, 0, 255, 0.3)'
   },
   LANGUAGE: {
     foreground: '#0ff',
-    background: 'rgba(0, 255, 255, 0.3)',
-    activeBackground: 'rgba(0, 255, 255, 0.5)'
+    background: 'rgba(0, 255, 255, 0)',
+    activeBackground: 'rgba(0, 255, 255, 035)'
   }
 }
 
@@ -125,7 +125,8 @@ const AnnotateBox = styled.div.attrs({
 })`
   position: absolute;
   user-select: none;
-  border: 0.05em solid ${({type}) => annotateColors[type].foreground};
+  border: 0.1em dashed ${({type}) => annotateColors[type].foreground};
+  border-radius: 0.2em;
   background-color: ${({type, active}) => active ? annotateColors[type].activeBackground : annotateColors[type].background};
   transition: 0.1s background;
   cursor: pointer;
