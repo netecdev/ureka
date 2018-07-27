@@ -12,7 +12,7 @@ if [ ! -d ~/google-cloud-sdk/lib ]; then
 fi
 
 
-echo $GCLOUD_KEY | base64 > ~/.secret.json
+echo $GCLOUD_KEY | base64 -D > ~/.secret.json
 ls -al ~/
 gcloud auth activate-service-account --key-file ~/.secret.json
 
