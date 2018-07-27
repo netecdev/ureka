@@ -61,9 +61,9 @@ const Avatar = styled(({className}) => (
   height: 3em;
   width: 3em;
   border-radius: 1.5em;
-  background-position: 50% 50%;
   background-size: cover;
-  background: ${({accessToken}) => `url(${accessToken.idToken.payload.picture})`};
+  background-image: ${({accessToken}) => `url(${accessToken.idToken.payload.picture})`};
+  background-position: 50% 50%;
 `
 
 const Name = styled.div`
@@ -83,7 +83,7 @@ const User = styled(({accessToken, className}) => (
   <div className={className}>
     <Name>
       <div>
-      {accessToken.idToken.payload.name}
+        {accessToken.idToken.payload.name}
       </div>
       <a href={'/auth/logout'}>
         (log out)
