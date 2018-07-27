@@ -29,6 +29,7 @@ import { DesktopIcon, LogoIcon, MobileIcon } from './Icons'
 import Screenshot from './Screenshot'
 import { Helmet } from 'react-helmet'
 import type { HtmlConfig } from './Html'
+import KeyGrapper from './KeyGrapper'
 
 // TODO fix loading and error handling
 
@@ -751,13 +752,33 @@ class ProjectW extends React.Component<*, { modal: ?ProjectModal }> {
   }
 }
 
-const Fallback = styled(props => (
+const AB = Button.withComponent('a')
+
+class ShowLogin extends React.Component<{}, { show: bool }> {
+  state = {show: false}
+
+  render () {
+    return (
+      <React.Fragment>
+        <KeyGrapper code={'Space'} on={last => {
+          console.log(last)
+          last < 500 && this.setState({show: true})
+        }} />
+        {this.state.show && <AB href={'/auth/login'}>Login</AB>}
+      </React.Fragment>
+    )
+  }
+}
+
+const Fallback = styled(({isAdmin, ...props}) => (
   <div {...props}>
     <LogoIcon />
+    {!isAdmin && <ShowLogin />}
   </div>))`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
@@ -767,6 +788,9 @@ const Fallback = styled(props => (
     height: 10em;
     width: 10em;
   }
+  ${AB} {
+    margin-top: 4em;
+  }
 `
 
 export default ({config}: { config: HtmlConfig }) => {
@@ -775,10 +799,13 @@ export default ({config}: { config: HtmlConfig }) => {
     <Container>
       <Helmet title={'Ureka'} />
       <Switch>
-        <Route path={'/projects/:project'} render={({match, history, location}) => <ProjectW {...{match, history, location}} config={config} />} />
-        {isAdmin ? <Route path={'/projects'} render={({match, history, location}) => <ProjectsW {...{match, history, location}} config={config} />} /> : null}
+        <Route path={'/projects/:project'}
+               render={({match, history, location}) => <ProjectW {...{match, history, location}} config={config} />} />
+        {isAdmin ? <Route path={'/projects'}
+                          render={({match, history, location}) => <ProjectsW {...{match, history, location}}
+                                                                             config={config} />} /> : null}
         {isAdmin ? <Redirect from={'/'} to={'/projects'} /> : null}
-        <Route render={() => <Fallback />} />
+        <Route render={() => <Fallback isAdmin={isAdmin} />} />
       </Switch>
     </Container>
   )

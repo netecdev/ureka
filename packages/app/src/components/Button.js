@@ -26,7 +26,9 @@ export default styled.button`
   color: ${({negative, positive, grey}) => (negative && colors.negative.color) || (positive && colors.positive.color) || (grey && colors.grey.color)  || colors.default.color};
   border: 0;
   height: 2.5rem;
+  line-height: 2.5rem;
   font-weight: 300;
+  text-decoration: none;
   font-size: 0.9em;
   padding: 0 2rem;
   cursor: pointer;
