@@ -20,13 +20,6 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}-redis
-          image: redis:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - name: redis
-              containerPort: 6379
-              protocol: TCP
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}

@@ -16,4 +16,4 @@ auth0:
   redirectUri: https://app.ureka.budde377.io/auth/callback
 
 redis:
-  host: localhost
+  host: redis
