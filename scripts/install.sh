@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+
+# INSTALL GOOGLE CLOUD SDK
 if [ ! -d ~/google-cloud-sdk/lib ]; then
   rm -r ~/google-cloud-sdk
   curl https://sdk.cloud.google. > ~/gcloud.sh
@@ -11,3 +13,10 @@ fi
 
 echo $GCLOUD_KEY | base64 > ~/.secret.json
 gcloud auth activate-service-account --key-file ~/.secret.json
+
+# INSTALL HELM
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+# INSTALL NPM
+npm i -g npm@latest
+npm ci
