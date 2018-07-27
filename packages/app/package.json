@@ -54,7 +54,7 @@
     "build": "npm run build:webpack && npm run build:server",
     "build:webpack": "NODE_ENV=production webpack  --profile --no-colors --config webpack.config.js",
     "build:server": "NODE_ENV=production babel -d dist/server/src src -s && babel -d dist/server/graphql graphql -s",
-    "test": "npm run gen:graphql && flow . && helm lint helm/*",
+    "test": "npm run gen:graphql && flow . && helm lint helm/app",
     "dev": "npm run dev:client & npm run dev:server",
     "dev:client": "webpack-dev-server --config webpack.config.dev.js  --hot",
     "dev:server": "nodemon --exec babel-node src/server.js",
