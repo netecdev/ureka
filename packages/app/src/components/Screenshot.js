@@ -3,7 +3,7 @@ import * as React from 'react'
 import styled, { keyframes } from 'styled-components'
 import KeyGrapper from './KeyGrapper'
 import { EditIcon, CheckmarkIcon, CloseIcon, Icon, PlusIcon, TrashIcon } from './Icons'
-import Form, { FormError, Selectable, Selectables, TextArea } from './Form'
+import Form, { FauxLabel, FormError, Selectable, Selectables, TextArea } from './Form'
 import Button from './Button'
 import * as gt from '../../graphql'
 import { Query, type QueryRenderProps, Mutation, type MutationFunction } from 'react-apollo'
@@ -685,20 +685,20 @@ class EditableDescription extends React.Component<EditableDescriptionProps, { ed
                 <Selectable
                   selected={this.state.type === 'USABILITY'}
                   onClick={() => this.setState({type: 'USABILITY'})}>
-                  <input type={'radio'} checked={this.state.type === 'USABILITY'} />
+                  <input type={'radio'} readOnly checked={this.state.type === 'USABILITY'} />
                   Usability
                 </Selectable>
                 <Selectable selected={this.state.type === 'DESIGN'} onClick={() => this.setState({type: 'DESIGN'})}>
-                  <input type={'radio'} checked={this.state.type === 'DESIGN'} />
+                  <input type={'radio'} readOnly checked={this.state.type === 'DESIGN'} />
                   Design
                 </Selectable>
                 <Selectable selected={this.state.type === 'FUNCTIONALITY'}
                             onClick={() => this.setState({type: 'FUNCTIONALITY'})}>
-                  <input type={'radio'} checked={this.state.type === 'FUNCTIONALITY'} />
+                  <input type={'radio'} readOnly checked={this.state.type === 'FUNCTIONALITY'} />
                   Functionality
                 </Selectable>
                 <Selectable selected={this.state.type === 'LANGUAGE'} onClick={() => this.setState({type: 'LANGUAGE'})}>
-                  <input type={'radio'} checked={this.state.type === 'LANGUAGE'} />
+                  <input type={'radio'} readOnly checked={this.state.type === 'LANGUAGE'} />
                   Language
                 </Selectable>
               </Selectables>
@@ -763,11 +763,64 @@ class EditableDescription extends React.Component<EditableDescriptionProps, { ed
   }
 }
 
+const SelectableStuff = ({value, types, onChange, children}) => {
+  const selected = types.indexOf(value) >= 0
+  const changer = () => selected
+    ? onChange(types.filter(v => v !== value))
+    : onChange([...types, value])
+  return (
+    <Selectable
+      selected={selected}
+      onClick={changer}>
+      <input type={'checkbox'} readOnly checked={selected} />
+      {children}
+    </Selectable>
+
+  )
+}
+
+const FieldSelector = styled(({className, types, onChange}) => {
+  return (
+    <div className={className}>
+      <FauxLabel>
+        Filter annotations
+        <Selectables>
+          <SelectableStuff value={'FUNCTIONALITY'} types={types} onChange={onChange}>
+            Functionality
+          </SelectableStuff>
+          <SelectableStuff value={'DESIGN'} types={types} onChange={onChange}>
+            Design
+          </SelectableStuff>
+          <SelectableStuff value={'USABILITY'} types={types} onChange={onChange}>
+            Usability
+          </SelectableStuff>
+          <SelectableStuff value={'LANGUAGE'} types={types} onChange={onChange}>
+            Language
+          </SelectableStuff>
+        </Selectables>
+      </FauxLabel>
+    </div>
+  )
+})`
+  position: absolute;
+  z-index: 2;
+  text-align: right;
+  top: 1em;
+  left: 1em;
+  right: 1em;
+  font-size: 0.8em;
+  font-family: Roboto, sans-serif;
+  ${Selectables} {
+    flex-direction: row-reverse;
+  }
+`
+
 type AnnotatorState = {|
   canvas: ?Can,
   open: ?string,
   adding: boolean | Rect,
-  modal: ?gt.GetApplication_application_annotations
+  modal: ?gt.GetApplication_application_annotations,
+  filter: gt.AnnotationType[]
 |}
 
 type AnnotatorProps = {|
@@ -778,7 +831,13 @@ type AnnotatorProps = {|
 |}
 
 class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
-  state = {canvas: null, open: null, adding: false, modal: null}
+  state = {
+    canvas: null,
+    open: null,
+    adding: false,
+    modal: null,
+    filter: ['DESIGN', 'FUNCTIONALITY', 'USABILITY', 'LANGUAGE']
+  }
   _ref: ?HTMLImageElement
   _onLoad = (evt) => {
     this._load(evt.target)
@@ -789,6 +848,10 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
       return
     }
     this._load(this._ref)
+  }
+
+  _annotations () {
+    return this.props.annotations.filter(c => this.state.filter.indexOf(c.type) >= 0)
   }
 
   _load (element: HTMLImageElement) {
@@ -823,8 +886,8 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   }
 
   _renderAnnotations (canvas: Can) {
-    return this.props
-      .annotations
+    return this
+      ._annotations()
       .map((annotation) => (
           <EditableA
             isAdmin={this.props.isAdmin}
@@ -842,8 +905,8 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
   }
 
   _renderAnnotationLabels (canvas: Can) {
-    return this.props
-      .annotations
+    return this
+      ._annotations()
       .map((annotation) => (
           <EditableDescription
             isAdmin={this.props.isAdmin}
@@ -906,6 +969,7 @@ class Annotator extends React.Component<AnnotatorProps, AnnotatorState> {
               )}
           </C11>
           <C12>
+            <FieldSelector types={this.state.filter} onChange={filter => this.setState({filter})} />
             {this.state.canvas && this._renderAnnotationLabels(this.state.canvas)}
           </C12>
         </C1>

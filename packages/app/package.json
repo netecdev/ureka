@@ -57,7 +57,7 @@
     "test": "npm run gen:graphql && flow . && helm lint helm/*",
     "dev": "npm run dev:client & npm run dev:server",
     "dev:client": "webpack-dev-server --config webpack.config.dev.js  --hot",
-    "dev:server": "babel-node src/server.js",
+    "dev:server": "nodemon --exec babel-node src/server.js",
     "start": "NODE_ENV=production node dist/server/src/server.js",
     "gen:graphql-schema": "apollo-codegen introspect-schema ./graphql/schema.graphqls --output graphql/schema.graphqls.json",
     "gen:graphql-flow": "apollo-codegen generate graphql/*.graphql --schema graphql/schema.graphqls.json --target flow --output graphql/index.js",

@@ -54,6 +54,7 @@ export const Selectable = styled(({children, radio, selected, ...props}) => <div
   justify-content: center;
   align-items: center;
   user-select: none;
+  margin: 0.5em;
   ${Icon} {
     height: 1em;
     width: 1em;
@@ -74,6 +75,7 @@ export const Selectable = styled(({children, radio, selected, ...props}) => <div
 `
 
 export const FormError = styled(({children, ...props}) => (<div {...props}>{children.message}</div>))`
+  overflow: hidden;
   border: 0.05em solid #f00;
   background-color: #ffe5e4;
   color: #f00;
@@ -84,9 +86,8 @@ export const FormError = styled(({children, ...props}) => (<div {...props}>{chil
 
 
 export const Selectables = styled.div`
-  ${Selectable} {
-  }
-  margin-top: 2.5em;
+  margin-top: 2em;
+  margin: 2em -0.5em -0.5em;
   flex-wrap: wrap;
   display: flex;
 `

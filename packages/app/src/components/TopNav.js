@@ -92,7 +92,7 @@ const User = styled(({accessToken, className}) => (
     <Avatar accessToken={accessToken} />
   </div>
 ))`
-  padding: 0 2em;
+  padding: 0 1em;
   height: 5.5em;
   display: flex;
   align-items: center;
