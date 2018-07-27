@@ -4,6 +4,11 @@ node_js:
   - 10
 services:
   - docker
+
+cache:
+  directories:
+  - ~/google-cloud-sdk
+
 before_install:
   - sudo ./scripts/install.sh
   - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
