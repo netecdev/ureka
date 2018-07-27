@@ -1,5 +1,5 @@
 mongo:
-  url: mongodb://mongodb-mongodb-replicaset-0.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017,mongodb-mongodb-replicaset-1.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017,mongodb-mongodb-replicaset-2.mongodb-mongodb-replicaset.mongodb.svc.cluster.local:27017/ureka?replicaSet=rs0
+  url: mongodb://mongo:27017/ureka
 
 port: 3000
 
@@ -16,4 +16,4 @@ auth0:
   redirectUri: https://app.ureka.budde377.io/auth/callback
 
 redis:
-  host: redis-redis-cache.redis.svc.cluster.local
+  host: redis
