@@ -39,6 +39,7 @@
     "react-pdf": "^3.0.5",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
+    "redis": "^2.8.0",
     "style-loader": "^0.21.0",
     "styled-components": "^3.3.3",
     "subscriptions-transport-ws": "^0.9.12",
@@ -60,7 +61,7 @@
     "gen:graphql-flow": "apollo-codegen generate graphql/*.graphql --schema graphql/schema.graphqls.json --target flow --output graphql/index.js",
     "gen:graphql": "npm run gen:graphql-schema && npm run gen:graphql-flow",
     "deploy": "npm run build && npm run build:docker && npm run publish:docker && npm run deploy:helm",
-    "deploy:helm": "helm upgrade --wait --timeout 300 -i --set image.tag=${VERSION:-latest} --set auth0.clientId=${AUTH0_CLIENT_ID:?Missing auth0 client id} --set auth0.clientSecret=${AUTH0_CLIENT_SECRET:?Missing auth0 client secret} ureka-app ./helm/app",
+    "deploy:helm": "helm upgrade --wait --timeout 300 -i --set image.tag=${VERSION:-latest} --set auth0.clientId=${AUTH0_CLIENT_ID:?Missing auth0 client id} --set auth0.clientSecret=${AUTH0_CLIENT_SECRET:?Missing auth0 client secret} --set key=${APP_KEY:?Missing app key} ureka-app ./helm/app",
     "build:docker": "docker build --build-arg VERSION=${VERSION:-latest} -t budde377/ureka-app:${VERSION:-latest} .",
     "publish:docker": "docker push budde377/ureka-app:${VERSION:-latest}"
   },

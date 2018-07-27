@@ -14,3 +14,6 @@ api:
 auth0:
   audience: https://app.ureka.io
   redirectUri: https://app.ureka.budde377.io/auth/callback
+
+redis:
+  host: redis-redis-cache.redis.svc.cluster.local

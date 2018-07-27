@@ -16,9 +16,10 @@ import files from './middleware/files'
 import db from './middleware/db'
 import auth from './middleware/auth'
 import session from 'koa-session'
+import { RedisStore } from './utils/store'
 
 const app = new Koa()
-app.keys = config.get('keys')
+app.keys = [config.get('key')]
 
 app.use(serve(path.join('dist', 'client'), {maxage: 1000 * 60 * 60 * 24})) // Cache 1d
 app.use(serve('public', {maxage: 1000 * 60 * 60 * 24 * 7})) // Cache 1w
@@ -26,8 +27,9 @@ app.use(cors())
 app.use(koaBody())
 app.use(session({
   key: 'ureka:sesh',
-  maxAge: 86400000
-}, app));
+  maxAge: 86400000,
+  store: new RedisStore()
+}, app))
 app.use(db())
 app.use(graphql())
 app.use(auth())

@@ -38,6 +38,11 @@ spec:
                 secretKeyRef:
                   name: {{ template "app.fullname" . }}
                   key: auth0ClientSecret
+            - name: 'APP_KEY'
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "app.fullname" . }}
+                  key: appKey
           livenessProbe:
             httpGet:
               path: /

@@ -2,8 +2,7 @@
 port: 1337
 version: latest
 
-keys:
-  - key1
+key: key1
 
 api:
   server:
@@ -27,3 +26,7 @@ auth0:
 
 admins:
   - budde377@gmail.com
+
+redis:
+  host: localhost
+  port: 6379
