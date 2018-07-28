@@ -7,8 +7,8 @@ api:
   server:
     http: http://localhost:3000
   client:
-    http: https://app.ureka.budde377.io
-    ws: wss://app.ureka.budde377.io
+    http: https://app.ureka.io
+    ws: wss://app.ureka.io
 
 
 auth0:
