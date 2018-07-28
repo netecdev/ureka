@@ -1,5 +1,5 @@
 mongo:
-  url: mongodb://mongo:27017/ureka
+  url: mongodb://mongo-mongodb:27017/ureka
 
 port: 3000
 
