@@ -12,6 +12,7 @@ const Header = styled.h1`
   color: #c5c5c5;
   transition: 0.1s, color;
   text-overflow: ellipsis;
+  font-size: 1em;
   white-space: nowrap;
   overflow: hidden;
 `
@@ -28,6 +29,7 @@ const Type = styled.div`
 
 const Divider = styled.div`
   float: left;
+    display: none;
     width: 0.1em;
     margin-top: 1em;
     height: calc(100% - 2em);
@@ -42,7 +44,7 @@ const BreadCrumb = styled(NavLink)`
   display: block;
   padding: 1em 2em;
   max-width: 20em;
-  height: calc(100% - 2em);
+  height: calc(100% - 3em);
   position: relative;
   text-decoration: none;
   &.active {
@@ -126,7 +128,7 @@ const TopNav = ({className, children, config}: { className: string, children: Bc
 
 const s: React.ComponentType<{ children: Bc[], config: HtmlConfig }> = styled(TopNav)`
   background-color: #ffffff;
-  height: 5.5em;
+  height: 4.1em;
   display: flex;
   justify-content: space-between;
 `
