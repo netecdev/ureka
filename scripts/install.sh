@@ -20,6 +20,7 @@ gcloud container clusters get-credentials the-moneymaker --zone europe-north1-a 
 # INSTALL HELM
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 helm init -c
+helm init --upgrade
 # INSTALL NPM
 npm i -g npm@latest
 npm ci
