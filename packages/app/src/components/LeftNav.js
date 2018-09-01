@@ -10,7 +10,7 @@ const MenuLink = styled(NavLink)`
   display: block;
   height: 3em;
   line-height: 3em;
-  color: #fff;
+  color: #768a9c;
   text-decoration: none;
   span {
     font-size: 0.85em;
@@ -31,7 +31,7 @@ const MenuLink = styled(NavLink)`
     width: 0.3em;
   }
   > ${Icon} {
-    fill: #ffffff;
+    fill: #768a9c;
     height: 1.7em;
     width: 1.7em;
     vertical-align: middle;
@@ -59,8 +59,9 @@ const Logo = styled(NavLink)`
   }
 `
 const LogoContainer = styled.div`
+  box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
   height: 5.5em;
-  background-color: #4C6073;
+  background-color: #039BE5;
   position: relative;
   > ${Logo} {
     position: absolute;
@@ -108,7 +109,7 @@ const MenuItem = styled.li`
     overflow: hidden;
     white-space: nowrap;
     text-decoration: none;
-    color: #ffffff;
+    color: #768a9c;
   }
 `
 
@@ -177,9 +178,10 @@ const LeftNav = ({className, children}: Props) => (
 )
 
 const s: React.ComponentType<Props> = styled(LeftNav)`
-  background-color: #425261;
+  background-color: #F5F5F5;
   display: flex;
   flex-direction: column;
+  color: #768a9c;
   > ${LogoContainer} {
     flex-grow: 0;
     flex-shrink: 0;

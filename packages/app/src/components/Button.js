@@ -12,7 +12,7 @@ const colors = {
   },
   default: {
     color: '#fff',
-    bg: '#23e2d9'
+    bg: '#039BE5'
   },
   grey: {
     color: '#fff',

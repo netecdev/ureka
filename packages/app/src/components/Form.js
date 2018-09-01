@@ -72,6 +72,7 @@ export const Selectable = styled(({children, radio, selected, ...props}) => <div
   font-family: Roboto, sans-serif;
   font-weight: 400;
   cursor: pointer;
+  box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
 `
 
 export const FormError = styled(({children, ...props}) => (<div {...props}>{children.message}</div>))`

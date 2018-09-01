@@ -47,7 +47,7 @@ const BreadCrumb = styled(NavLink)`
   text-decoration: none;
   &.active {
     ${Header} {
-      color: #05C5AD;
+      color: #039BE5;
     }
     ${Type} {
       color: #9A9A9A;
@@ -129,5 +129,7 @@ const s: React.ComponentType<{ children: Bc[], config: HtmlConfig }> = styled(To
   height: 5.5em;
   display: flex;
   justify-content: space-between;
+  box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
+  z-index: 900;
 `
 export default s

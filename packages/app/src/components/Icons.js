@@ -18,7 +18,7 @@ export const LogoIcon = styled(props => (
        xmlnsXlink="http://www.w3.org/1999/xlink">
     <g id="Symbols" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
       <g id="Logo">
-        <circle id="Mask" fill="#3AEFD4" cx="107" cy="107" r="107" />
+        <circle id="Mask" fill="#039BE5" cx="107" cy="107" r="107" />
         <g id="Group" transform="translate(25.000000, 59.000000)">
           <path
             d="M0,116.74253 L0,0 L165,0 L165,115.533121 C145.379965,139.617451 115.486376,155 82,155 C49.0775834,155 19.6279572,140.131217 8.8817842e-15,116.74253 Z"

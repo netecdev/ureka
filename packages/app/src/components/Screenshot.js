@@ -580,8 +580,8 @@ const C12 = styled.div`
   flex-grow: 0;
   flex-shrink: 0;
   position: relative;
-  flex-basis: 20em;
-  width: 20em;
+  flex-basis: 18em;
+  width: 18em;
 `
 
 type EditableDescriptionProps = {|
@@ -599,7 +599,6 @@ const DescriptionContainer = styled.div`
   position: absolute;
   top: ${({y}) => y}px;
   width: 100%;
-  left: -0.5em;
   z-index: 20;
   ${AnnotateActionIcons} {
     position: absolute;
