@@ -22,6 +22,5 @@ curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 helm init -c
 helm init --upgrade
 # INSTALL NPM
-npm config set registry http://registry.npmjs.org/ # Remove when NPM gets their shit together
 npm i -g npm@latest && break
 npm ci
