@@ -14,6 +14,7 @@ const Link = styled.div`
   font-family: monospace;
   background-color: #ffffff;
   padding: 2em 0;
+  margin-bottom: 2em;
 `
 
 export type OnUploadApplication = (project: gt.GetProject_project) => any
