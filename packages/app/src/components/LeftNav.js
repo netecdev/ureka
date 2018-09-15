@@ -40,7 +40,7 @@ const MenuLink = styled(NavLink)`
 `
 
 const LogoName = styled.span`
-  font-family: "Unica One", sans-serif;
+  font-family: "Arial", sans-serif;
   color: #ffffff;
   font-size: 2em;
 `
@@ -52,7 +52,7 @@ const Logo = styled(NavLink)`
     display: inline-block;
     vertical-align: middle;
   }
-  
+
   > ${LogoName} {
     margin-left: 0.5em;
     vertical-align: middle;
@@ -89,11 +89,11 @@ const Menu = styled.ul`
   ::-webkit-scrollbar {
     width: 0.5em;
   }
-   
+
   ::-webkit-scrollbar-track {
     background-color: transparent;
   }
-   
+
   ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255,255, 0.2);
   }
