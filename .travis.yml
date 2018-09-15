@@ -19,8 +19,13 @@ script:
   - lerna run test
 
 deploy:
-  provider: script
+- provider: script
   skip_cleanup: true
   script: ./scripts/deploy.sh
   on:
     branch: master
+- provider: script
+  skip_cleanup: true
+  script: ./scripts/deploy.sh
+  on:
+    branch: beta

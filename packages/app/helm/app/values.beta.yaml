@@ -1,0 +1,6 @@
+ingress:
+  hosts:
+  - beta.app.ureka.io
+  tls:
+  - hosts:
+    - beta.app.ureka.io
