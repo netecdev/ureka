@@ -1,1 +1,7 @@
-{}
+api:
+  client:
+    http: https://app.ureka.io
+    ws: wss://app.ureka.io
+
+auth0:
+  redirectUri: https://app.ureka.io/auth/callback

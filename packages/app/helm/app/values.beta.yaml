@@ -4,3 +4,11 @@ ingress:
   tls:
   - hosts:
     - beta.app.ureka.io
+
+api:
+  client:
+    http: https://beta.app.ureka.io
+    ws: wss://beta.app.ureka.io
+
+auth0:
+  redirectUri: https://beta.app.ureka.io/auth/callback

@@ -47,5 +47,12 @@ affinity: {}
 auth0:
   clientId: AUTH0_CLIENT_ID
   clientSecret: AUTH0_CLIENT_SECRET
+  redirectUri: AUTH0_REDIRECT_URI
 
 key: FOOBAR
+
+api:
+  client:
+    http: API_CLIENT_HTTP
+    ws: API_CLIENT_WS
+

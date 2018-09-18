@@ -28,6 +28,21 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            - name: 'API_CLIENT_WS'
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "app.fullname" . }}
+                  key: apiClientWs
+            - name: 'API_CLIENT_HTTP'
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "app.fullname" . }}
+                  key: apiClientHttp
+            - name: 'AUTH0_REDIRECT_URI'
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "app.fullname" . }}
+                  key: auth0RedirectUri
             - name: 'AUTH0_CLIENT_ID'
               valueFrom:
                 secretKeyRef:
