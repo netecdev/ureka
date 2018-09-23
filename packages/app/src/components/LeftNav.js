@@ -5,6 +5,7 @@ import { NavLink } from 'react-router-dom'
 import { DesktopIcon, DocIcon, Icon, LogoIcon, MobileIcon, ProjectIcon } from './Icons'
 
 const MenuLink = styled(NavLink)`
+
   padding: 0 1.25em;
   position: relative;
   display: block;
@@ -37,13 +38,15 @@ const MenuLink = styled(NavLink)`
     vertical-align: middle;
     margin-right: 1em;
   }
+
 `
 
-const LogoName = styled.span`
+const LogoName = styled.image`
   font-family: "Arial", sans-serif;
   color: #ffffff;
-  font-size: 2em;
 `
+
+
 const Logo = styled(NavLink)`
   text-decoration: none;
   > ${LogoIcon} {
@@ -54,9 +57,11 @@ const Logo = styled(NavLink)`
   }
 
   > ${LogoName} {
-    margin-left: 0.5em;
     vertical-align: middle;
+    width: 150px;
+    height: 40px;
   }
+
 `
 const LogoContainer = styled.div`
   box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
@@ -65,8 +70,8 @@ const LogoContainer = styled.div`
   position: relative;
   > ${Logo} {
     position: absolute;
-    bottom: 1.3em;
-    left: 1.25em;
+    bottom: 1.4em;
+    left: 3.75em;
   }
 `
 
@@ -104,18 +109,27 @@ const MenuItem = styled.li`
   font-weight: 400;
   padding: 0.5em 0 ;
   overflow: hidden;
+
   > ${MenuLink} {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     text-decoration: none;
     color: #768a9c;
+
   }
+
 `
 
 const SubMenu = styled.ul`
   list-style-type: none;
   padding: 0;
+
+      > :hover {
+        box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
+        color: #000000;
+
+      }
 
 `
 
@@ -130,9 +144,14 @@ const LeftNav = ({className, children}: Props) => (
   <nav className={className}>
     <LogoContainer>
       <Logo to={'/'}>
-        <LogoIcon />
+
+
         <LogoName>
-          ureka
+
+                <img
+                className="logoimage"
+                style={{width: 150}}
+                src="https://www.netec.dk/assets/images/ureka-hvid-logo.png" alt="netec"/>
         </LogoName>
       </Logo>
     </LogoContainer>
@@ -178,6 +197,8 @@ const LeftNav = ({className, children}: Props) => (
 )
 
 const s: React.ComponentType<Props> = styled(LeftNav)`
+
+  box-shadow:0 0 0.5em 0 rgba(0,0,0,0.12);
   background-color: #F5F5F5;
   display: flex;
   flex-direction: column;
