@@ -60,6 +60,7 @@ const Logo = styled(NavLink)`
     vertical-align: middle;
     width: 150px;
     height: 40px;
+
   }
 
 `
@@ -70,8 +71,9 @@ const LogoContainer = styled.div`
   position: relative;
   > ${Logo} {
     position: absolute;
-    bottom: 1.4em;
-    left: 3.75em;
+    bottom: 30%;
+    top: 30%
+    left: 3.5em;
   }
 `
 
@@ -151,7 +153,7 @@ const LeftNav = ({className, children}: Props) => (
                 <img
                 className="logoimage"
                 style={{width: 150}}
-                src="https://www.netec.dk/assets/images/ureka-hvid-logo.png" alt="netec"/>
+                src="https://www.netec.dk/assets/images/logos/netec_hvid1.png" alt="netec"/>
         </LogoName>
       </Logo>
     </LogoContainer>
